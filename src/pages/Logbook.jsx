@@ -4,6 +4,7 @@ import { useBozza } from '../lib/useBozza'
 import { formattaDataConAnno } from '../lib/util'
 import { scaricaCSV } from '../lib/csv'
 import { stampaLogbook } from '../lib/stampaLogbook'
+import BottoneDrive from '../components/BottoneDrive'
 import './Brevetti.css'
 import './Logbook.css'
 
@@ -124,32 +125,32 @@ export default function Logbook({ cliente }) {
     }
   }
 
+  const colonneCSV = [
+    { chiave: 'data', etichetta: 'Data' },
+    { chiave: 'ora_inizio', etichetta: 'Ora inizio' },
+    { chiave: 'ora_fine', etichetta: 'Ora fine' },
+    { chiave: 'luogo', etichetta: 'Luogo' },
+    { chiave: 'centro', etichetta: 'Centro di immersione' },
+    { chiave: 'istruttore', etichetta: 'Istruttore' },
+    { chiave: 'tipo_autorespiratore', etichetta: 'Autorespiratore' },
+    { chiave: 'miscela_utilizzata', etichetta: 'Miscela' },
+    { chiave: 'profondita_programmata', etichetta: 'Profondità programmata (m)' },
+    { chiave: 'profondita_raggiunta', etichetta: 'Profondità raggiunta (m)' },
+    { chiave: 'corso', etichetta: 'Corso' },
+    { chiave: 'note', etichetta: 'Note' },
+    { chiave: 'confermata', etichetta: 'Confermata' },
+  ]
+
+  const righeCSV = voci.map((v) => ({
+    ...v,
+    luogo: v.localita_immersione?.nome || v.luogo || '',
+    centro: v.centri_immersione?.nome || v.centro_immersione_libero || '',
+    istruttore: v.istruttori?.nome || v.istruttore_nome_libero || '',
+    confermata: v.confermato_da_istruttore ? 'Sì' : 'No',
+  }))
+
   function esportaCSV() {
-    scaricaCSV(
-      'logbook.csv',
-      [
-        { chiave: 'data', etichetta: 'Data' },
-        { chiave: 'ora_inizio', etichetta: 'Ora inizio' },
-        { chiave: 'ora_fine', etichetta: 'Ora fine' },
-        { chiave: 'luogo', etichetta: 'Luogo' },
-        { chiave: 'centro', etichetta: 'Centro di immersione' },
-        { chiave: 'istruttore', etichetta: 'Istruttore' },
-        { chiave: 'tipo_autorespiratore', etichetta: 'Autorespiratore' },
-        { chiave: 'miscela_utilizzata', etichetta: 'Miscela' },
-        { chiave: 'profondita_programmata', etichetta: 'Profondità programmata (m)' },
-        { chiave: 'profondita_raggiunta', etichetta: 'Profondità raggiunta (m)' },
-        { chiave: 'corso', etichetta: 'Corso' },
-        { chiave: 'note', etichetta: 'Note' },
-        { chiave: 'confermata', etichetta: 'Confermata' },
-      ],
-      voci.map((v) => ({
-        ...v,
-        luogo: v.localita_immersione?.nome || v.luogo || '',
-        centro: v.centri_immersione?.nome || v.centro_immersione_libero || '',
-        istruttore: v.istruttori?.nome || v.istruttore_nome_libero || '',
-        confermata: v.confermato_da_istruttore ? 'Sì' : 'No',
-      }))
-    )
+    scaricaCSV('logbook.csv', colonneCSV, righeCSV)
   }
 
   function esportaStampa() {
@@ -168,6 +169,7 @@ export default function Logbook({ cliente }) {
           <button className="btn-secondary" onClick={esportaStampa}>
             Scarica come schede (stampa/PDF)
           </button>
+          <BottoneDrive nomeFile="logbook.csv" colonne={colonneCSV} righe={righeCSV} />
         </div>
       )}
 
