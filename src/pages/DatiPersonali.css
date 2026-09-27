@@ -1,0 +1,40 @@
+.dati-personali-box {
+  background: #fff;
+  border: 1px solid var(--chalk-dim);
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dati-personali-toggle {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0.2rem 0;
+}
+
+.dati-personali-form {
+  margin-top: 1rem;
+}
+
+.dati-personali-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.dati-personali-hint {
+  margin: -0.4rem 0 1rem;
+}
+
+@media (max-width: 420px) {
+  .dati-personali-row {
+    grid-template-columns: 1fr;
+  }
+}

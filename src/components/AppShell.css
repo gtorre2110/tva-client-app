@@ -1,0 +1,129 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-topbar {
+  background: var(--ink);
+  padding: 0.75rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.app-topbar-nome {
+  color: var(--chalk);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.app-topbar img {
+  height: 2.4rem;
+  width: auto;
+}
+
+.app-content {
+  flex: 1;
+  padding: 1.5rem 1.1rem 6rem;
+  max-width: 32rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Pulsante flottante: sempre raggiungibile con il pollice, come nello staff-app */
+.app-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--ink);
+  border: none;
+  box-shadow: 0 4px 14px rgba(0, 102, 153, 0.35);
+  z-index: 20;
+}
+
+.app-fab:active {
+  background: var(--accent-dim);
+}
+
+.app-sheet-overlay {
+  display: flex;
+  align-items: flex-end;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 51, 77, 0.4);
+  z-index: 30;
+}
+
+.app-sheet {
+  width: 100%;
+  background: var(--ink);
+  border-radius: 16px 16px 0 0;
+  padding: 0.75rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  max-height: 75vh;
+  overflow-y: auto;
+  margin: 0 auto;
+}
+
+.app-sheet-handle {
+  width: 2.5rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: var(--ink-soft);
+  margin: 0.25rem auto 1rem;
+}
+
+.app-sheet-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.app-sheet-link {
+  color: var(--chalk);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 0.85rem 0.75rem;
+  border-radius: 8px;
+}
+
+.app-sheet-link.active {
+  background: var(--ink-soft);
+  color: var(--accent);
+}
+
+@media (min-width: 640px) {
+  .app-content {
+    padding-top: 2.5rem;
+    max-width: 36rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .app-content {
+    max-width: 46rem;
+  }
+
+  .app-sheet {
+    max-width: 26rem;
+    border-radius: 16px;
+    margin: 0 1.5rem 1.5rem auto;
+  }
+
+  .app-sheet-overlay {
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+}

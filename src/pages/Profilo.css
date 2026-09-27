@@ -1,0 +1,90 @@
+.profilo-card {
+  background: #fff;
+  border: 1px solid var(--chalk-dim);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.profilo-foto-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.profilo-foto {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.profilo-foto-vuota {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.profilo-foto-btn {
+  background: #fff;
+  border: 1.5px solid var(--chalk-dim);
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.profilo-card h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0 0 0.2rem;
+}
+
+.profilo-email {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  margin: 0 0 1.1rem;
+}
+
+.profilo-consenso {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--chalk-dim);
+}
+
+.profilo-consenso input {
+  margin-top: 0.15rem;
+}
+
+.profilo-riga {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--chalk-dim);
+  font-size: 0.92rem;
+}
+
+.valore-alert {
+  color: var(--alert);
+}
+
+.valore-warning {
+  color: var(--warning);
+}
+
+.profilo-logout {
+  width: 100%;
+}

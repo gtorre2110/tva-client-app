@@ -1,0 +1,103 @@
+.brevetti-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.brevetto-card {
+  background: #fff;
+  border: 1px solid var(--chalk-dim);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+}
+
+.brevetto-immagine {
+  width: 100%;
+  max-width: 10rem;
+  border-radius: 6px;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.brevetto-carica-immagine {
+  display: inline-block;
+  margin-top: 0.5rem;
+  background: #fff;
+  border: 1.5px dashed var(--chalk-dim);
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.brevetto-card h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 0 0 0.4rem;
+}
+
+.brevetto-riga {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin: 0.15rem 0;
+}
+
+.brevetti-add-btn {
+  width: 100%;
+}
+
+.brevetto-form {
+  background: #fff;
+  border: 1px solid var(--chalk-dim);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.brevetto-form h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+}
+
+.campo select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 0.7rem 0.85rem;
+  border: 1.5px solid var(--chalk-dim);
+  background: #fff;
+  border-radius: 8px;
+  color: var(--ink);
+}
+
+.brevetti-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.brevetti-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 420px) {
+  .brevetti-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 640px) {
+  .brevetti-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

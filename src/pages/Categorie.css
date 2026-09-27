@@ -1,0 +1,86 @@
+.categorie-intro {
+  margin-bottom: 1.25rem;
+}
+
+.categorie-gruppi {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.categorie-gruppo-titolo {
+  display: block;
+  background: none;
+  border: none;
+  font: inherit;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+  padding: 0;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.categorie-gruppo-titolo:active {
+  color: var(--accent-dim);
+}
+
+.categorie-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.chip-stato {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.chip-stato-toggle {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+}
+
+.chip-stato-neutro .chip-stato-toggle {
+  background: #fff;
+  border: 1.5px solid var(--chalk-dim);
+  color: var(--ink-soft);
+}
+
+.chip-stato-neutro .chip-stato-toggle:active {
+  border-color: var(--accent);
+}
+
+.chip-stato-confermata {
+  background: var(--accent);
+  color: var(--ink);
+  padding: 0.55rem 1.1rem;
+}
+
+.chip-stato-richiesta {
+  background: #d6ecf7;
+  color: var(--ink);
+  padding: 0.5rem 0.5rem 0.5rem 1.1rem;
+}
+
+.chip-stato-azione {
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 999px;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+}

@@ -1,0 +1,10 @@
+.logbook-note {
+  font-style: italic;
+}
+
+.logbook-export {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}

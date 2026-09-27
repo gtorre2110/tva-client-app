@@ -1,0 +1,77 @@
+.prenotazioni-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin: 0 0 1rem;
+}
+
+.prenotazioni-tabs {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  margin: 0 0 1.25rem;
+}
+
+.prenotazioni-tab {
+  flex-shrink: 0;
+  background: #fff;
+  border: 1.5px solid var(--chalk-dim);
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.prenotazioni-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.prenotazioni-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .prenotazioni-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.prenotazione-card {
+  background: #fff;
+  border: 1px solid var(--chalk-dim);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.prenotazione-card.annullata {
+  opacity: 0.55;
+}
+
+.prenotazione-card h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 0.15rem;
+}
+
+.prenotazione-quando {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.4rem;
+  text-transform: capitalize;
+}
