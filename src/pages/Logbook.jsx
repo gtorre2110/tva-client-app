@@ -4,7 +4,6 @@ import { useBozza } from '../lib/useBozza'
 import { formattaDataConAnno } from '../lib/util'
 import { scaricaCSV } from '../lib/csv'
 import { stampaLogbook } from '../lib/stampaLogbook'
-import BottoneDrive from '../components/BottoneDrive'
 import './Brevetti.css'
 import './Logbook.css'
 
@@ -169,7 +168,6 @@ export default function Logbook({ cliente }) {
           <button className="btn-secondary" onClick={esportaStampa}>
             Scarica come schede (stampa/PDF)
           </button>
-          <BottoneDrive nomeFile="logbook.csv" colonne={colonneCSV} righe={righeCSV} />
         </div>
       )}
 
