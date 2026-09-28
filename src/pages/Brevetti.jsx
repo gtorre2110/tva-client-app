@@ -128,7 +128,6 @@ export default function Brevetti({ cliente }) {
         {brevetti.map((b) => {
           const didattica = b.tipi_brevetto?.didattica || b.didattica_libera
           const tipo = b.tipi_brevetto?.tipo_brevetto || b.tipo_brevetto_libero
-          const livello = b.tipi_brevetto?.livello || b.livello_libero
           const istruttore = b.istruttori?.nome || b.istruttore_nome_libero
           const scaduto = certificatoScaduto(b.scadenza)
           const immagine = b.tipi_brevetto?.immagine_url || b.immagine_url
@@ -137,7 +136,6 @@ export default function Brevetti({ cliente }) {
             <div className="brevetto-card" key={b.id}>
               {immagine && <img src={immagine} alt="" className="brevetto-immagine" />}
               <h2>{[didattica, tipo].filter(Boolean).join(' — ') || 'Brevetto'}</h2>
-              {livello && <p className="brevetto-riga">Livello: {livello}</p>}
               {b.numero_brevetto && <p className="brevetto-riga">N. {b.numero_brevetto}</p>}
               {istruttore && <p className="brevetto-riga">Istruttore: {istruttore}</p>}
               <p className="brevetto-riga">
