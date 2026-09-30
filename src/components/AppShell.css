@@ -127,3 +127,10 @@
     justify-content: flex-end;
   }
 }
+
+/* Beta banner: nella topbar va in linea col logo, non sopra */
+.app-topbar .beta-banner {
+  margin-bottom: 0;
+  padding: 3px 8px;
+  font-size: 0.62rem;
+}

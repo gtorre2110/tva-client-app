@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import BetaBanner from './BetaBanner'
 import './AppShell.css'
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ export default function AppShell({ cliente }) {
   return (
     <div className="app-shell">
       <header className="app-topbar">
+        <BetaBanner />
         <img src={logo} alt="Logo" />
         {cliente && <span className="app-topbar-nome">{cliente.nome}</span>}
       </header>

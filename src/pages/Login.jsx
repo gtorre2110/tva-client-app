@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import logo from '../assets/logo.png'
 import CampoPassword from '../components/CampoPassword'
+import BetaBanner from '../components/BetaBanner'
 import './Auth.css'
 
 export default function Login() {
@@ -32,6 +33,7 @@ export default function Login() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
+        <BetaBanner />
         <img src={logo} alt="Logo" className="auth-logo" />
         <span className="auth-kicker">Gestione attività</span>
         <h1>Accedi</h1>
