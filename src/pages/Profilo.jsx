@@ -1,6 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
-import { formattaDataConAnno, certificatoScaduto, certificatoInScadenza } from '../lib/util'
+import {
+  formattaDataConAnno,
+  certificatoScaduto,
+  certificatoInScadenza,
+  scadenzaIngressiAllenamenti,
+} from '../lib/util'
 import { caricaImmagine } from '../lib/upload'
 import DatiPersonali from './DatiPersonali'
 import './Profilo.css'
@@ -13,6 +18,11 @@ export default function Profilo({ cliente }) {
   const [fotoUrl, setFotoUrl] = useState(cliente.foto_url || null)
   const [caricandoFoto, setCaricandoFoto] = useState(false)
   const [erroreFoto, setErroreFoto] = useState(null)
+  const [scadenzaIngressi, setScadenzaIngressi] = useState(null)
+
+  useEffect(() => {
+    scadenzaIngressiAllenamenti(supabase, cliente.id).then(setScadenzaIngressi)
+  }, [cliente.id])
 
   async function cambiaConsenso(e) {
     const valore = e.target.checked
@@ -67,7 +77,10 @@ export default function Profilo({ cliente }) {
         <p className="profilo-email">{cliente.email}</p>
 
         <div className="profilo-riga">
-          <span>Ingressi disponibili</span>
+          <span>
+            Ingressi disponibili
+            {scadenzaIngressi && ` (scadenza: ${new Date(scadenzaIngressi).toLocaleDateString('it-IT')})`}
+          </span>
           <strong className={cliente.ingressi_disponibili < 0 ? 'valore-alert' : ''}>
             {cliente.ingressi_disponibili}
           </strong>
