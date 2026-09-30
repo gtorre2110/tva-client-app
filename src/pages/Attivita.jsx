@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
-import { formattaData, formattaOra, certificatoScaduto } from '../lib/util'
+import { formattaOra, certificatoScaduto, scomponiData } from '../lib/util'
 import './Attivita.css'
 import './Prenotazioni.css'
 
 export default function Attivita({ cliente }) {
   const certificatoNonValido = certificatoScaduto(cliente.scadenza_certificato_medico)
   const [occorrenze, setOccorrenze] = useState([])
-  const [prenotateIds, setPrenotateIds] = useState(new Set())
-  const [inCodaIds, setInCodaIds] = useState(new Set())
+  const [prenotazioniPerAttivita, setPrenotazioniPerAttivita] = useState(new Map())
   const [posizioni, setPosizioni] = useState(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [prenotando, setPrenotando] = useState(null)
+  const [inCorso, setInCorso] = useState(null)
   const [esito, setEsito] = useState(null)
   const [macrocategorie, setMacrocategorie] = useState([])
   const [macroPerAttivita, setMacroPerAttivita] = useState(new Map())
+  const [macroNomiPerAttivita, setMacroNomiPerAttivita] = useState(new Map())
   const [schedaMacro, setSchedaMacro] = useState('tutte')
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function Attivita({ cliente }) {
         .order('ora_inizio', { ascending: true }),
       supabase
         .from('prenotazioni')
-        .select('attivita_id, stato')
+        .select('id, attivita_id, stato')
         .eq('cliente_id', cliente.id)
         .in('stato', ['confermata', 'in_coda']),
     ])
@@ -48,9 +48,9 @@ export default function Attivita({ cliente }) {
       return
     }
 
-    setPrenotateIds(new Set((mieProp || []).filter((p) => p.stato === 'confermata').map((p) => p.attivita_id)))
+    const mappaPrenotazioni = new Map((mieProp || []).map((p) => [p.attivita_id, p]))
+    setPrenotazioniPerAttivita(mappaPrenotazioni)
     const codaIds = (mieProp || []).filter((p) => p.stato === 'in_coda').map((p) => p.attivita_id)
-    setInCodaIds(new Set(codaIds))
 
     if (codaIds.length > 0) {
       const nuovePosizioni = new Map()
@@ -66,6 +66,7 @@ export default function Attivita({ cliente }) {
     if (data.length === 0) {
       setOccorrenze([])
       setMacroPerAttivita(new Map())
+      setMacroNomiPerAttivita(new Map())
       setLoading(false)
       return
     }
@@ -103,15 +104,20 @@ export default function Attivita({ cliente }) {
       return c.categoria_padre_id || c.id
     }
     const mappaMacro = new Map()
+    const mappaMacroNomi = new Map()
     for (const [attivitaId, cats] of categoriePerAttivita.entries()) {
       for (const cid of cats) {
         const macroId = risolviMacro(cid)
         if (!macroId) continue
         if (!mappaMacro.has(attivitaId)) mappaMacro.set(attivitaId, new Set())
         mappaMacro.get(attivitaId).add(macroId)
+        if (!mappaMacroNomi.has(attivitaId)) {
+          mappaMacroNomi.set(attivitaId, categoriePerId.get(macroId)?.nome || '')
+        }
       }
     }
     setMacroPerAttivita(mappaMacro)
+    setMacroNomiPerAttivita(mappaMacroNomi)
     setMacrocategorie((categorie || []).filter((c) => !c.categoria_padre_id).sort((a, b) => a.nome.localeCompare(b.nome)))
 
     setOccorrenze(visibili)
@@ -119,9 +125,9 @@ export default function Attivita({ cliente }) {
   }
 
   async function prenota(occorrenza, stato = 'confermata') {
-    if (prenotateIds.has(occorrenza.id) || inCodaIds.has(occorrenza.id)) return
+    if (prenotazioniPerAttivita.has(occorrenza.id)) return
 
-    setPrenotando(occorrenza.id)
+    setInCorso(occorrenza.id)
     setEsito(null)
 
     const { error: insertError } = await supabase.from('prenotazioni').insert({
@@ -132,7 +138,7 @@ export default function Attivita({ cliente }) {
       stato,
     })
 
-    setPrenotando(null)
+    setInCorso(null)
 
     if (insertError) {
       const messaggio = insertError.code === '23505'
@@ -142,6 +148,30 @@ export default function Attivita({ cliente }) {
       if (insertError.code === '23505') carica()
     } else {
       setEsito({ tipo: stato === 'in_coda' ? 'coda' : 'ok', id: occorrenza.id })
+      carica()
+    }
+  }
+
+  async function annulla(occorrenza) {
+    const p = prenotazioniPerAttivita.get(occorrenza.id)
+    if (!p) return
+
+    setInCorso(occorrenza.id)
+    setEsito(null)
+
+    const { data, error: updateError } = await supabase
+      .from('prenotazioni')
+      .update({ stato: 'annullata' })
+      .eq('id', p.id)
+      .select()
+
+    setInCorso(null)
+
+    if (updateError) {
+      setEsito({ tipo: 'errore', id: occorrenza.id, messaggio: updateError.message })
+    } else if (!data || data.length === 0) {
+      setEsito({ tipo: 'errore', id: occorrenza.id, messaggio: 'Non è stato possibile annullare (nessuna riga modificata).' })
+    } else {
       carica()
     }
   }
@@ -205,52 +235,76 @@ export default function Attivita({ cliente }) {
             return macroSet && macroSet.has(schedaMacro)
           })
           .map((o) => {
-          const giaPrenotata = prenotateIds.has(o.id)
-          const giaInCoda = inCodaIds.has(o.id)
+          const mia = prenotazioniPerAttivita.get(o.id)
+          const giaPrenotata = mia?.stato === 'confermata'
+          const giaInCoda = mia?.stato === 'in_coda'
           const piena = o.posti_disponibili === 0
           const prenotabile =
-            !giaPrenotata &&
-            !giaInCoda &&
+            !mia &&
             o.prenotabile_ora &&
             o.posti_disponibili > 0 &&
             !cliente.prenotazioni_bloccate &&
             !certificatoNonValido
           const puoMettersInCoda =
-            !giaPrenotata &&
-            !giaInCoda &&
+            !mia &&
             o.prenotabile_ora &&
             piena &&
             !cliente.prenotazioni_bloccate &&
             !certificatoNonValido
-          const inLoading = prenotando === o.id
+          const puoAnnullare = (giaPrenotata || giaInCoda) && !cliente.prenotazioni_bloccate
+          const inLoading = inCorso === o.id
+          const { giorno, num, mese } = scomponiData(o.data)
+          const macroNome = macroNomiPerAttivita.get(o.id)
+          const tot = o.posti_massimi ?? o.posti_totali ?? null
+          const pct = tot ? Math.round(((tot - o.posti_disponibili) / tot) * 100) : null
+
+          let tag = null
+          let tagClass = ''
+          if (giaPrenotata) { tag = 'PRENOTATA'; tagClass = 'badge-ok' }
+          else if (giaInCoda) { tag = 'IN LISTA D\'ATTESA'; tagClass = 'badge-warning' }
+          else if (piena) { tag = 'COMPLETA'; tagClass = 'badge-neutro' }
 
           return (
-            <div className="attivita-card" key={o.id}>
+            <article className="attivita-card" key={o.id}>
               <div className="attivita-card-data">
-                <span className="attivita-card-giorno">{formattaData(o.data)}</span>
-                <span className="attivita-card-ora">
-                  {formattaOra(o.ora_inizio)}–{formattaOra(o.ora_fine)}
-                </span>
+                <span className="attivita-card-giorno">{giorno}</span>
+                <span className="attivita-card-num">{num}</span>
+                <span className="attivita-card-mese">{mese}</span>
               </div>
 
               <div className="attivita-card-body">
+                {macroNome && <div className="attivita-card-macro">{macroNome}</div>}
                 <h2>{o.nome}</h2>
-                <p className="attivita-card-posti">
-                  {o.posti_disponibili > 0
-                    ? `${o.posti_disponibili} posti disponibili`
-                    : 'Al completo'}
-                </p>
+                <div className="attivita-card-meta">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                  <span>{formattaOra(o.ora_inizio)}–{formattaOra(o.ora_fine)}</span>
+                </div>
 
-                {!o.prenotabile_ora && o.posti_disponibili > 0 && (
+                {tot != null && (
+                  <div className="attivita-card-posti-wrap">
+                    <div className="attivita-card-barra">
+                      <div
+                        className="attivita-card-barra-riempita"
+                        style={{ width: pct + '%', background: o.posti_disponibili === 0 ? 'var(--ink-soft)' : 'var(--accent)' }}
+                      />
+                    </div>
+                    <p className="attivita-card-posti">
+                      {o.posti_disponibili > 0
+                        ? `${o.posti_disponibili} post${o.posti_disponibili === 1 ? 'o' : 'i'} disponibil${o.posti_disponibili === 1 ? 'e' : 'i'} su ${tot}`
+                        : `Al completo (0 su ${tot})`}
+                    </p>
+                  </div>
+                )}
+
+                {!o.prenotabile_ora && !mia && o.posti_disponibili > 0 && (
                   <p className="hint">Le prenotazioni non sono ancora aperte o sono già chiuse.</p>
                 )}
 
                 {giaInCoda && (
                   <p className="hint">
-                    Sei in lista d'attesa
                     {posizioni.has(o.id) && posizioni.get(o.id) > 1
-                      ? ` · hai ${posizioni.get(o.id) - 1} client${posizioni.get(o.id) - 1 === 1 ? 'e' : 'i'} davanti`
-                      : ' · sei il prossimo in coda'}
+                      ? `Hai ${posizioni.get(o.id) - 1} client${posizioni.get(o.id) - 1 === 1 ? 'e' : 'i'} davanti`
+                      : 'Sei il prossimo in coda'}
                   </p>
                 )}
 
@@ -264,25 +318,37 @@ export default function Attivita({ cliente }) {
                   <p className="avviso avviso-alert">{esito.messaggio}</p>
                 )}
 
-                {piena && !giaPrenotata ? (
-                  <button
-                    className="btn-secondary attivita-card-btn"
-                    disabled={!puoMettersInCoda || inLoading}
-                    onClick={() => prenota(o, 'in_coda')}
-                  >
-                    {inLoading ? 'Attendere…' : giaInCoda ? 'In lista d\'attesa' : 'Mettiti in lista d\'attesa'}
-                  </button>
-                ) : (
-                  <button
-                    className="btn-primary attivita-card-btn"
-                    disabled={!prenotabile || inLoading}
-                    onClick={() => prenota(o)}
-                  >
-                    {inLoading ? 'Prenoto…' : giaPrenotata ? 'Già prenotato ✓' : 'Prenota'}
-                  </button>
-                )}
+                <div className="attivita-card-footer">
+                  {tag && <span className={'badge ' + tagClass}>{tag}</span>}
+
+                  {puoAnnullare ? (
+                    <button
+                      className="btn-secondary attivita-card-btn"
+                      disabled={inLoading}
+                      onClick={() => annulla(o)}
+                    >
+                      {inLoading ? 'Attendere…' : giaInCoda ? 'Esci dalla lista' : 'Annulla'}
+                    </button>
+                  ) : piena ? (
+                    <button
+                      className="btn-secondary attivita-card-btn"
+                      disabled={!puoMettersInCoda || inLoading}
+                      onClick={() => prenota(o, 'in_coda')}
+                    >
+                      {inLoading ? 'Attendere…' : 'Mettiti in lista d\'attesa'}
+                    </button>
+                  ) : (
+                    <button
+                      className="btn-primary attivita-card-btn"
+                      disabled={!prenotabile || inLoading}
+                      onClick={() => prenota(o)}
+                    >
+                      {inLoading ? 'Prenoto…' : 'Prenota'}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
+            </article>
           )
         })}
       </div>

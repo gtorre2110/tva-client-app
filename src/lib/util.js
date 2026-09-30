@@ -12,6 +12,18 @@ export function formattaDataConAnno(data) {
   return new Date(data).toLocaleDateString('it-IT')
 }
 
+// Scompone una data (YYYY-MM-DD) in { giorno, num, mese } per il riquadro data
+// delle schede attività, es. { giorno: 'GIO', num: '2', mese: 'OTT' }.
+export function scomponiData(data) {
+  if (!data) return { giorno: '—', num: '—', mese: '—' }
+  const d = new Date(data + 'T00:00:00')
+  return {
+    giorno: d.toLocaleDateString('it-IT', { weekday: 'short' }).replace('.', '').toUpperCase(),
+    num: String(d.getDate()),
+    mese: d.toLocaleDateString('it-IT', { month: 'short' }).replace('.', '').toUpperCase(),
+  }
+}
+
 export function formattaOra(ora) {
   if (!ora) return '—'
   return ora.slice(0, 5)

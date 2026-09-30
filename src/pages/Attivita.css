@@ -49,46 +49,104 @@
 .attivita-card {
   background: #fff;
   border: 1px solid var(--chalk-dim);
-  border-radius: 10px;
-  padding: 1.1rem;
+  border-radius: 14px;
+  padding: 1rem;
   display: flex;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .attivita-card-data {
+  flex-shrink: 0;
+  align-self: flex-start;
+  width: 3.6rem;
   display: flex;
   flex-direction: column;
-  min-width: 4.5rem;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.55rem 0;
+  border-radius: 10px;
+  background: var(--chalk);
+  color: var(--ink);
 }
 
-.attivita-card-giorno {
+.attivita-card-giorno,
+.attivita-card-mese {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.attivita-card-num {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
   font-weight: 700;
-  font-size: 0.85rem;
-  text-transform: capitalize;
-}
-
-.attivita-card-ora {
-  font-size: 0.8rem;
-  color: var(--ink-soft);
+  line-height: 1;
 }
 
 .attivita-card-body {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.attivita-card-macro {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink);
 }
 
 .attivita-card-body h2 {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.1rem;
-  margin: 0 0 0.2rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.attivita-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.attivita-card-posti-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+}
+
+.attivita-card-barra {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--chalk-dim);
+  overflow: hidden;
+}
+
+.attivita-card-barra-riempita {
+  height: 100%;
+  border-radius: 3px;
 }
 
 .attivita-card-posti {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--ink-soft);
-  margin: 0 0 0.6rem;
+  margin: 0;
+}
+
+.attivita-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
 }
 
 .attivita-card-btn {
-  width: 100%;
+  flex-shrink: 0;
 }
