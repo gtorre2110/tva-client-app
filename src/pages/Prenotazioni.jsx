@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
-import { formattaData, formattaOra } from '../lib/util'
+import { formattaOra, formattaDataConAnno, scomponiData } from '../lib/util'
+import './Attivita.css'
 import './Prenotazioni.css'
 
 export default function Prenotazioni({ cliente }) {
@@ -8,10 +9,9 @@ export default function Prenotazioni({ cliente }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [annullando, setAnnullando] = useState(null)
-  const [mostraAnnullate, setMostraAnnullate] = useState(false)
-  const [macrocategorie, setMacrocategorie] = useState([])
-  const [macroPerAttivita, setMacroPerAttivita] = useState(new Map())
-  const [schedaMacro, setSchedaMacro] = useState('tutte')
+  const [macroNomiPerAttivita, setMacroNomiPerAttivita] = useState(new Map())
+  const [posizioni, setPosizioni] = useState(new Map())
+  const [periodo, setPeriodo] = useState('prossime')
 
   useEffect(() => {
     carica()
@@ -34,6 +34,21 @@ export default function Prenotazioni({ cliente }) {
     }
     setPrenotazioni(data)
 
+    const oggi = new Date().toISOString().slice(0, 10)
+    const inCodaProssime = (data || []).filter(
+      (p) => p.stato === 'in_coda' && p.attivita && p.attivita.data >= oggi && !p.attivita.annullata
+    )
+    if (inCodaProssime.length > 0) {
+      const nuovePosizioni = new Map()
+      await Promise.all(
+        inCodaProssime.map(async (p) => {
+          const { data: pos } = await supabase.rpc('posizione_in_coda', { p_attivita_id: p.attivita_id })
+          nuovePosizioni.set(p.attivita_id, pos)
+        })
+      )
+      setPosizioni(nuovePosizioni)
+    }
+
     if (data.length > 0) {
       const attivitaIds = [...new Set(data.map((p) => p.attivita_id))]
       const [{ data: categorie }, { data: collegamenti }] = await Promise.all([
@@ -48,17 +63,16 @@ export default function Prenotazioni({ cliente }) {
         return c.categoria_padre_id || c.id
       }
 
-      const mappa = new Map()
+      const mappaNomi = new Map()
       for (const riga of collegamenti || []) {
+        if (mappaNomi.has(riga.attivita_id)) continue
         const macroId = risolviMacro(riga.categoria_id)
         if (!macroId) continue
-        if (!mappa.has(riga.attivita_id)) mappa.set(riga.attivita_id, new Set())
-        mappa.get(riga.attivita_id).add(macroId)
+        mappaNomi.set(riga.attivita_id, categoriePerId.get(macroId)?.nome || '')
       }
-      setMacroPerAttivita(mappa)
-      setMacrocategorie((categorie || []).filter((c) => !c.categoria_padre_id).sort((a, b) => a.nome.localeCompare(b.nome)))
+      setMacroNomiPerAttivita(mappaNomi)
     } else {
-      setMacroPerAttivita(new Map())
+      setMacroNomiPerAttivita(new Map())
     }
 
     setLoading(false)
@@ -84,102 +98,115 @@ export default function Prenotazioni({ cliente }) {
     }
   }
 
+  const oggi = new Date().toISOString().slice(0, 10)
+  const eProssima = (p) => p.stato !== 'annullata' && p.attivita && !p.attivita.annullata && p.attivita.data >= oggi
+  const prossime = prenotazioni.filter(eProssima)
+  const passate = prenotazioni.filter((p) => !eProssima(p))
+  const elenco = periodo === 'prossime' ? prossime : passate
+
   return (
     <div>
       <h1 className="page-title">Le mie prenotazioni</h1>
 
-      <label className="prenotazioni-toggle">
-        <input
-          type="checkbox"
-          checked={mostraAnnullate}
-          onChange={(e) => setMostraAnnullate(e.target.checked)}
-        />
-        Mostra anche le annullate
-      </label>
-
-      {macrocategorie.length > 0 && (
-        <div className="prenotazioni-tabs">
-          <button
-            className={'prenotazioni-tab' + (schedaMacro === 'tutte' ? ' active' : '')}
-            onClick={() => setSchedaMacro('tutte')}
-          >
-            Tutte
-          </button>
-          {macrocategorie.map((m) => (
-            <button
-              key={m.id}
-              className={'prenotazioni-tab' + (schedaMacro === m.id ? ' active' : '')}
-              onClick={() => setSchedaMacro(m.id)}
-            >
-              {m.nome}
-            </button>
-          ))}
-          <button
-            className={'prenotazioni-tab' + (schedaMacro === 'senza-categoria' ? ' active' : '')}
-            onClick={() => setSchedaMacro('senza-categoria')}
-          >
-            Senza categoria
-          </button>
+      <div className="prenotazioni-stat-row">
+        <div className="prenotazioni-stat">
+          <div className="prenotazioni-stat-label">Ingressi disponibili</div>
+          <div className={'prenotazioni-stat-valore' + (cliente.ingressi_disponibili < 0 ? ' valore-alert' : '')}>
+            {cliente.ingressi_disponibili}
+          </div>
         </div>
-      )}
+        <div className="prenotazioni-stat prenotazioni-stat-warning">
+          <div className="prenotazioni-stat-label">Certificato medico</div>
+          <div className="prenotazioni-stat-valore-piccolo">
+            Scade il {formattaDataConAnno(cliente.scadenza_certificato_medico)}
+          </div>
+        </div>
+      </div>
+
+      <div className="prenotazioni-periodo-tabs" role="tablist" aria-label="Periodo">
+        <button
+          role="tab"
+          aria-selected={periodo === 'prossime'}
+          className={'prenotazioni-tab-periodo' + (periodo === 'prossime' ? ' active' : '')}
+          onClick={() => setPeriodo('prossime')}
+        >
+          Prossime ({prossime.length})
+        </button>
+        <button
+          role="tab"
+          aria-selected={periodo === 'passate'}
+          className={'prenotazioni-tab-periodo' + (periodo === 'passate' ? ' active' : '')}
+          onClick={() => setPeriodo('passate')}
+        >
+          Passate
+        </button>
+      </div>
 
       {error && <p className="errore-form">Errore: {error}</p>}
       {loading && <p className="hint">Caricamento…</p>}
-      {!loading && prenotazioni.length === 0 && (
-        <p className="hint">Non hai ancora nessuna prenotazione.</p>
+      {!loading && elenco.length === 0 && (
+        <p className="hint">
+          {periodo === 'prossime' ? 'Non hai prenotazioni in programma.' : 'Nessuna prenotazione passata.'}
+        </p>
       )}
-      {!loading && prenotazioni.length > 0 &&
-        !mostraAnnullate &&
-        prenotazioni.every((p) => p.stato === 'annullata') && (
-          <p className="hint">Nessuna prenotazione attiva al momento.</p>
-        )}
 
       <div className="prenotazioni-list">
-        {prenotazioni
-          .filter((p) => mostraAnnullate || p.stato !== 'annullata')
-          .filter((p) => {
-            if (schedaMacro === 'tutte') return true
-            const macroSet = macroPerAttivita.get(p.attivita_id)
-            if (schedaMacro === 'senza-categoria') return !macroSet || macroSet.size === 0
-            return macroSet && macroSet.has(schedaMacro)
-          })
-          .map((p) => {
+        {elenco.map((p) => {
           const a = p.attivita
-          const passata = a && a.data < new Date().toISOString().slice(0, 10)
+          const { giorno, num, mese } = scomponiData(a?.data)
+          const macroNome = macroNomiPerAttivita.get(p.attivita_id)
+          const posizione = posizioni.get(p.attivita_id)
+
+          let tag = p.stato
+          let tagClass = 'badge-neutro'
+          let messaggio = null
+          if (p.presente) { tag = 'PRESENTE REGISTRATA'; tagClass = 'badge-ok' }
+          else if (p.stato === 'confermata') {
+            tag = 'CONFERMATA'; tagClass = 'badge-ok'
+            if (periodo === 'prossime') messaggio = "L'ingresso viene scalato al check-in."
+          } else if (p.stato === 'in_coda') {
+            tag = posizione ? `IN CODA · ${posizione}°` : 'IN LISTA D\'ATTESA'
+            tagClass = 'badge-warning'
+            if (periodo === 'prossime') messaggio = 'Se si libera un posto ti iscriviamo in automatico e ti avvisiamo via email.'
+          } else if (p.stato === 'annullata') {
+            tag = 'ANNULLATA'; tagClass = 'badge-alert'
+          }
 
           return (
-            <div className={'prenotazione-card' + (p.stato === 'annullata' ? ' annullata' : '')} key={p.id}>
-              <div>
-                <h2>{a?.nome ?? 'Attività'}</h2>
-                {a && (
-                  <p className="prenotazione-quando">
-                    {formattaData(a.data)} · {formattaOra(a.ora_inizio)}–{formattaOra(a.ora_fine)}
-                  </p>
-                )}
-                <span
-                  className={
-                    'badge ' +
-                    (p.stato === 'confermata'
-                      ? 'badge-ok'
-                      : p.stato === 'annullata'
-                      ? 'badge-alert'
-                      : 'badge-warning')
-                  }
-                >
-                  {p.presente ? 'Presente registrata' : p.stato === 'in_coda' ? 'In lista d\'attesa' : p.stato}
-                </span>
+            <article className="prenotazione-card" key={p.id}>
+              <div className="attivita-card-data">
+                <span className="attivita-card-giorno">{giorno}</span>
+                <span className="attivita-card-num">{num}</span>
+                <span className="attivita-card-mese">{mese}</span>
               </div>
 
-              {(p.stato === 'confermata' || p.stato === 'in_coda') && !passata && !p.presente && (
-                <button
-                  className="btn-secondary"
-                  onClick={() => annulla(p)}
-                  disabled={annullando === p.id}
-                >
-                  {annullando === p.id ? 'Annullo…' : 'Annulla'}
-                </button>
-              )}
-            </div>
+              <div className="prenotazione-card-body">
+                <div className="prenotazione-card-riga-top">
+                  {macroNome && <div className="attivita-card-macro">{macroNome}</div>}
+                  <span className={'badge ' + tagClass}>{tag}</span>
+                </div>
+                <h2>{a?.nome ?? 'Attività'}</h2>
+                {a && (
+                  <div className="attivita-card-meta">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                    <span>{formattaOra(a.ora_inizio)}–{formattaOra(a.ora_fine)}</span>
+                  </div>
+                )}
+                {messaggio && <p className="hint">{messaggio}</p>}
+
+                {periodo === 'prossime' && (p.stato === 'confermata' || p.stato === 'in_coda') && !p.presente && (
+                  <div className="attivita-card-footer prenotazione-card-footer">
+                    <button
+                      className="btn-secondary"
+                      onClick={() => annulla(p)}
+                      disabled={annullando === p.id}
+                    >
+                      {annullando === p.id ? 'Attendere…' : p.stato === 'in_coda' ? 'Esci dalla coda' : 'Annulla prenotazione'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </article>
           )
         })}
       </div>
