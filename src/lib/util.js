@@ -29,9 +29,10 @@ export function certificatoInScadenza(scadenza, giorni = 15) {
   return scadenza <= soglia.toISOString().slice(0, 10)
 }
 
-// Data di scadenza ingressi: valorizzata solo sulla categoria "Allenamenti"
-// (colonna categorie.data_scadenza), mostrata solo se il cliente ha quella
-// categoria confermata.
+// Data di scadenza ingressi: presa dalla prima categoria confermata del
+// cliente che ha una data_scadenza impostata (in pratica solo "Allenamento",
+// ma non si assume il nome esatto: basta che lo staff l'abbia valorizzata
+// su una categoria che il cliente ha confermata).
 export async function scadenzaIngressiAllenamenti(supabase, clienteId) {
   const { data, error } = await supabase
     .from('clienti_categorie')
@@ -40,8 +41,6 @@ export async function scadenzaIngressiAllenamenti(supabase, clienteId) {
     .eq('confermata', true)
 
   if (error || !data) return null
-  const riga = data.find(
-    (r) => r.categorie?.nome?.toUpperCase().startsWith('ALLENAMENTI') && r.categorie?.data_scadenza
-  )
+  const riga = data.find((r) => r.categorie?.data_scadenza)
   return riga ? riga.categorie.data_scadenza : null
 }
