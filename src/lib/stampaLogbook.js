@@ -1,27 +1,82 @@
-// Apre una finestra con una "scheda" per ogni voce, pronta per essere stampata
-// o salvata come PDF con la funzione di stampa del browser (nessuna libreria esterna).
+// Apre una finestra con una "scheda" per ogni voce, in un formato che
+// replica la scheda cartacea "Registrazione immersioni: Apnea in mare",
+// pronta per essere stampata o salvata come PDF con la funzione di
+// stampa del browser (nessuna libreria esterna).
+
+const CIELO = { sereno: 'Sereno', velato: 'Velato', coperto: 'Coperto', pioggia: 'Pioggia' }
+const SUPERFICIE = { calma: 'Calma', quasi_calma: 'QuasiCalma', mossa: 'Mossa', molto_mossa: 'MoltoMossa' }
+const VISIBILITA = { buona: 'Buona', sufficiente: 'Sufficiente', scarsa: 'Scarsa' }
+const ASSETTO = { costante: 'Assetto Costante', variabile: 'Assetto Variabile', no_limits: 'No limits' }
+
+function scelte(mappa, valoreSelezionato) {
+  return Object.entries(mappa)
+    .map(([chiave, etichetta]) => `<span class="scelta">${chiave === valoreSelezionato ? '☑' : '☐'} ${etichetta}</span>`)
+    .join(' ')
+}
+
+function numeroOTrattino(v, unita = '') {
+  return v || v === 0 ? `${v}${unita}` : '___'
+}
+
+function scheda(v, formattaData) {
+  const luogo = v.localita_immersione?.nome || v.luogo || ''
+  const istruttoreDelClub = v.istruttori?.nome || v.istruttore_nome_libero || ''
+  const numeroBrevetto = v.brevetti?.numero_brevetto || ''
+
+  return `
+    <section class="scheda">
+      <div class="intestazione">
+        <img src="/logo-scheda.png" alt="" class="logo" />
+        <div>
+          <h1>Scheda di registrazione immersioni:</h1>
+          <h2>Apnea in mare</h2>
+        </div>
+      </div>
+
+      <div class="riga-top">
+        <span>N°Uscita <strong>${numeroOTrattino(v.numero_uscita)}</strong></span>
+        <span>data <strong>${formattaData(v.data)}</strong></span>
+        <span>${scelte({ lago: 'Lago', mare: 'Mare' }, v.specchio_acqua)}</span>
+      </div>
+
+      <div class="blocco">
+        <div>Località <strong>${luogo || '—'}</strong></div>
+        <div>Coordinate Lat. <strong>${v.coordinate_lat || '—'}</strong> Long. <strong>${v.coordinate_long || '—'}</strong></div>
+      </div>
+
+      <div class="blocco titolo">Condizioni Ambientali</div>
+      <div class="blocco">
+        <div>CIELO: ${scelte(CIELO, v.condizioni_cielo)}</div>
+        <div>SUPERFICIE: ${scelte(SUPERFICIE, v.condizioni_superficie)}</div>
+        <div>VISIBILITÀ: ${scelte(VISIBILITA, v.visibilita)}</div>
+        <div>TEMPERATURA: Acqua <strong>${numeroOTrattino(v.temperatura_acqua, '°C')}</strong> Aria <strong>${numeroOTrattino(v.temperatura_aria, '°C')}</strong></div>
+      </div>
+
+      <div class="blocco titolo">Attività svolta</div>
+      <div class="blocco">
+        <div>N. Tuffi Svolti <strong>${numeroOTrattino(v.numero_tuffi)}</strong> Max profondità raggiunta <strong>${numeroOTrattino(v.profondita_raggiunta, 'm')}</strong></div>
+        <div>Tempo Max d'immersione <strong>${v.tempo_max_immersione || '___'}</strong> Min profondità raggiunta <strong>${numeroOTrattino(v.profondita_min_raggiunta, 'm')}</strong></div>
+        <div>${scelte(ASSETTO, v.assetto)}</div>
+      </div>
+
+      <div class="blocco titolo">Attrezzatura utilizzata</div>
+      <div class="blocco">
+        <div>Giacca muta <strong>${numeroOTrattino(v.muta_giacca_mm, 'mm')}</strong> Pantaloni muta <strong>${numeroOTrattino(v.muta_pantaloni_mm, 'mm')}</strong> Bermuda <strong>${numeroOTrattino(v.muta_bermuda_mm, 'mm')}</strong></div>
+        <div>Guanti <strong>${numeroOTrattino(v.guanti_mm, 'mm')}</strong> Calzari <strong>${numeroOTrattino(v.calzari_mm, 'mm')}</strong> Zavorra <strong>${numeroOTrattino(v.zavorra_kg, 'kg')}</strong> Pinne <strong>${v.pinne || '—'}</strong></div>
+      </div>
+
+      <div class="blocco titolo">Note / Sensazioni</div>
+      <div class="blocco note">${v.note || ''}</div>
+
+      <div class="blocco piede">
+        <div>Compagno/Guida/Istruttore <strong>${v.compagno_immersione || istruttoreDelClub || '—'}</strong></div>
+        <div>N. Brevetto <strong>${numeroBrevetto || '—'}</strong> Conferma istruttore <strong>${v.confermato_da_istruttore ? 'Sì' : 'No'}</strong></div>
+      </div>
+    </section>`
+}
+
 export function stampaLogbook(cliente, voci, formattaData) {
-  const schede = voci
-    .map(
-      (v) => `
-      <section class="scheda">
-        <h2>${formattaData(v.data)}</h2>
-        <table>
-          <tr><td>Orario</td><td>${v.ora_inizio?.slice(0, 5) || '—'} – ${v.ora_fine?.slice(0, 5) || '—'}</td></tr>
-          <tr><td>Località</td><td>${v.localita_immersione?.nome || v.luogo || '—'}</td></tr>
-          <tr><td>Centro di immersione</td><td>${v.centri_immersione?.nome || v.centro_immersione_libero || '—'}</td></tr>
-          <tr><td>Istruttore</td><td>${v.istruttori?.nome || v.istruttore_nome_libero || '—'}</td></tr>
-          <tr><td>Autorespiratore</td><td>${v.tipo_autorespiratore || '—'}</td></tr>
-          <tr><td>Miscela</td><td>${v.miscela_utilizzata || '—'}</td></tr>
-          <tr><td>Profondità programmata</td><td>${v.profondita_programmata ? v.profondita_programmata + ' m' : '—'}</td></tr>
-          <tr><td>Profondità raggiunta</td><td>${v.profondita_raggiunta ? v.profondita_raggiunta + ' m' : '—'}</td></tr>
-          <tr><td>Corso</td><td>${v.corso || '—'}</td></tr>
-          <tr><td>Note</td><td>${v.note || '—'}</td></tr>
-          <tr><td>Confermata dall'istruttore</td><td>${v.confermato_da_istruttore ? 'Sì' : 'No'}</td></tr>
-        </table>
-      </section>`
-    )
-    .join('\n')
+  const schede = voci.map((v) => scheda(v, formattaData)).join('\n')
 
   const html = `
     <!doctype html>
@@ -30,18 +85,25 @@ export function stampaLogbook(cliente, voci, formattaData) {
         <meta charset="utf-8" />
         <title>Logbook — ${cliente.nome} ${cliente.cognome}</title>
         <style>
-          body { font-family: -apple-system, Arial, sans-serif; color: #12181f; margin: 2rem; }
-          h1 { color: #006699; }
-          .scheda { border: 1px solid #dceaf3; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem; page-break-inside: avoid; }
-          .scheda h2 { margin: 0 0 0.75rem; color: #006699; font-size: 1.1rem; }
-          table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-          td { padding: 0.35rem 0.5rem; border-bottom: 1px solid #eee; }
-          td:first-child { font-weight: 600; width: 40%; color: #444; }
-          @media print { body { margin: 0.5cm; } }
+          body { font-family: -apple-system, Arial, sans-serif; color: #12181f; margin: 1.5rem; font-size: 0.85rem; }
+          .scheda { border: 2px solid #12181f; border-radius: 4px; margin-bottom: 1.5rem; page-break-inside: avoid; overflow: hidden; }
+          .intestazione { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.9rem; border-bottom: 2px solid #12181f; background: #eaf5fb; }
+          .intestazione .logo { height: 42px; width: auto; }
+          .intestazione h1 { margin: 0; font-size: 0.95rem; font-weight: 700; }
+          .intestazione h2 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #006699; }
+          .riga-top { display: flex; gap: 1.5rem; padding: 0.5rem 0.9rem; border-bottom: 1px solid #12181f; font-size: 0.9rem; }
+          .blocco { padding: 0.45rem 0.9rem; border-bottom: 1px solid #ddd; }
+          .blocco.titolo { font-weight: 700; text-align: center; background: #f4f4f4; border-top: 1px solid #12181f; border-bottom: 1px solid #12181f; }
+          .blocco div { margin: 0.15rem 0; }
+          .blocco.note { min-height: 2.5rem; white-space: pre-wrap; }
+          .blocco.piede { border-bottom: none; }
+          .scelta { display: inline-block; margin-right: 0.6rem; }
+          strong { font-weight: 700; }
+          @media print { body { margin: 0.5cm; } .scheda { break-inside: avoid; } }
         </style>
       </head>
       <body>
-        <h1>Logbook di ${cliente.nome} ${cliente.cognome}</h1>
+        <h1 style="font-size:1.1rem;">Logbook di ${cliente.nome} ${cliente.cognome}</h1>
         ${schede || '<p>Nessuna voce registrata.</p>'}
       </body>
     </html>
