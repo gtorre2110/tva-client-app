@@ -18,8 +18,6 @@ const VUOTO = {
   istruttore_id: '',
   istruttore_nome_libero: '',
   brevetto_id: '',
-  tipo_autorespiratore: '',
-  miscela_utilizzata: '',
   profondita_programmata: '',
   profondita_raggiunta: '',
   corso: '',
@@ -125,8 +123,6 @@ export default function Logbook({ cliente }) {
       istruttore_id: usaCatalogoIstruttore ? form.istruttore_id : null,
       istruttore_nome_libero: usaCatalogoIstruttore ? null : form.istruttore_nome_libero.trim() || null,
       brevetto_id: form.brevetto_id || null,
-      tipo_autorespiratore: form.tipo_autorespiratore.trim() || null,
-      miscela_utilizzata: form.miscela_utilizzata.trim() || null,
       profondita_programmata: form.profondita_programmata === '' ? null : Number(form.profondita_programmata),
       profondita_raggiunta: form.profondita_raggiunta === '' ? null : Number(form.profondita_raggiunta),
       corso: form.corso.trim() || null,
@@ -173,8 +169,6 @@ export default function Logbook({ cliente }) {
     { chiave: 'luogo', etichetta: 'Luogo' },
     { chiave: 'centro', etichetta: 'Centro di immersione' },
     { chiave: 'istruttore', etichetta: 'Istruttore' },
-    { chiave: 'tipo_autorespiratore', etichetta: 'Autorespiratore' },
-    { chiave: 'miscela_utilizzata', etichetta: 'Miscela' },
     { chiave: 'profondita_programmata', etichetta: 'Profondità programmata (m)' },
     { chiave: 'profondita_raggiunta', etichetta: 'Profondità raggiunta (m)' },
     { chiave: 'corso', etichetta: 'Corso' },
@@ -240,13 +234,6 @@ export default function Logbook({ cliente }) {
               </p>
             )}
             {v.brevetti && <p className="brevetto-riga">Brevetto: {descrizioneBrevetto(v.brevetti)}</p>}
-            {(v.tipo_autorespiratore || v.miscela_utilizzata) && (
-              <p className="brevetto-riga">
-                {v.tipo_autorespiratore && `Autorespiratore: ${v.tipo_autorespiratore}`}
-                {v.tipo_autorespiratore && v.miscela_utilizzata && ' · '}
-                {v.miscela_utilizzata && `Miscela: ${v.miscela_utilizzata}`}
-              </p>
-            )}
             {(v.profondita_programmata || v.profondita_raggiunta) && (
               <p className="brevetto-riga">
                 Profondità: {v.profondita_programmata ? `${v.profondita_programmata}m programmata` : ''}
@@ -395,25 +382,6 @@ export default function Logbook({ cliente }) {
                 </option>
               ))}
             </select>
-          </div>
-
-          <div className="brevetti-row">
-            <div className="campo">
-              <label htmlFor="autorespiratore">Tipo di autorespiratore</label>
-              <input
-                id="autorespiratore"
-                value={form.tipo_autorespiratore}
-                onChange={(e) => aggiorna('tipo_autorespiratore', e.target.value)}
-              />
-            </div>
-            <div className="campo">
-              <label htmlFor="miscela">Miscela utilizzata</label>
-              <input
-                id="miscela"
-                value={form.miscela_utilizzata}
-                onChange={(e) => aggiorna('miscela_utilizzata', e.target.value)}
-              />
-            </div>
           </div>
 
           <div className="brevetti-row">

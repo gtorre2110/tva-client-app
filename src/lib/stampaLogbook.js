@@ -86,18 +86,18 @@ export function stampaLogbook(cliente, voci, formattaData) {
         <title>Logbook — ${cliente.nome} ${cliente.cognome}</title>
         <style>
           body { font-family: -apple-system, Arial, sans-serif; color: #12181f; margin: 1.5rem; font-size: 0.85rem; }
-          .scheda { border: 2px solid #12181f; border-radius: 4px; margin-bottom: 1.5rem; page-break-inside: avoid; overflow: hidden; }
-          .intestazione { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.9rem; border-bottom: 2px solid #12181f; background: #eaf5fb; }
-          .intestazione .logo { height: 42px; width: auto; }
-          .intestazione h1 { margin: 0; font-size: 0.95rem; font-weight: 700; }
-          .intestazione h2 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #006699; }
-          .riga-top { display: flex; gap: 1.5rem; padding: 0.5rem 0.9rem; border-bottom: 1px solid #12181f; font-size: 0.9rem; }
-          .blocco { padding: 0.45rem 0.9rem; border-bottom: 1px solid #ddd; }
+          .scheda { max-width: 620px; margin: 0 auto 1.5rem; border: 2px solid #12181f; border-radius: 4px; page-break-inside: avoid; overflow: hidden; }
+          .intestazione { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.7rem 0.9rem; border-bottom: 2px solid #12181f; background: #eaf5fb; text-align: center; }
+          .intestazione .logo { height: 48px; width: auto; }
+          .intestazione h1 { margin: 0; font-size: 0.9rem; font-weight: 700; }
+          .intestazione h2 { margin: 0; font-size: 1.15rem; font-weight: 700; color: #006699; }
+          .riga-top { display: flex; justify-content: center; gap: 1.75rem; padding: 0.5rem 0.9rem; border-bottom: 1px solid #12181f; font-size: 0.9rem; text-align: center; }
+          .blocco { padding: 0.45rem 0.9rem; border-bottom: 1px solid #ddd; text-align: center; }
           .blocco.titolo { font-weight: 700; text-align: center; background: #f4f4f4; border-top: 1px solid #12181f; border-bottom: 1px solid #12181f; }
-          .blocco div { margin: 0.15rem 0; }
-          .blocco.note { min-height: 2.5rem; white-space: pre-wrap; }
+          .blocco div { margin: 0.2rem 0; }
+          .blocco.note { min-height: 2.5rem; white-space: pre-wrap; text-align: left; }
           .blocco.piede { border-bottom: none; }
-          .scelta { display: inline-block; margin-right: 0.6rem; }
+          .scelta { display: inline-block; margin: 0 0.35rem; }
           strong { font-weight: 700; }
           @media print { body { margin: 0.5cm; } .scheda { break-inside: avoid; } }
         </style>
