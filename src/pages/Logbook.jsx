@@ -58,6 +58,7 @@ export default function Logbook({ cliente }) {
   const [formAperto, setFormAperto] = useState(false)
   const [form, setForm, pulisciBozza] = useBozza(`logbook-nuovo-${cliente.id}`, VUOTO)
   const [salvataggio, setSalvataggio] = useState(false)
+  const [modificaId, setModificaId] = useState(null)
 
   useEffect(() => {
     carica()
@@ -96,6 +97,58 @@ export default function Logbook({ cliente }) {
 
   function aggiorna(campo, valore) {
     setForm((prev) => ({ ...prev, [campo]: valore }))
+  }
+
+  function apriModifica(v) {
+    setModificaId(v.id)
+    setForm({
+      data: v.data || '',
+      ora_inizio: v.ora_inizio || '',
+      ora_fine: v.ora_fine || '',
+      localita_id: v.localita_id || '',
+      luogo: v.luogo || '',
+      centro_immersione_id: v.centro_immersione_id || '',
+      centro_immersione_libero: v.centro_immersione_libero || '',
+      istruttore_id: v.istruttore_id || '',
+      istruttore_nome_libero: v.istruttore_nome_libero || '',
+      brevetto_id: v.brevetto_id || '',
+      profondita_programmata: v.profondita_programmata ?? '',
+      profondita_raggiunta: v.profondita_raggiunta ?? '',
+      corso: v.corso || '',
+      note: v.note || '',
+      numero_uscita: v.numero_uscita ?? '',
+      specchio_acqua: v.specchio_acqua || '',
+      coordinate_lat: v.coordinate_lat || '',
+      coordinate_long: v.coordinate_long || '',
+      compagno_immersione: v.compagno_immersione || '',
+      condizioni_cielo: v.condizioni_cielo || '',
+      condizioni_superficie: v.condizioni_superficie || '',
+      visibilita: v.visibilita || '',
+      temperatura_acqua: v.temperatura_acqua ?? '',
+      temperatura_aria: v.temperatura_aria ?? '',
+      numero_tuffi: v.numero_tuffi ?? '',
+      tempo_max_immersione: v.tempo_max_immersione || '',
+      profondita_min_raggiunta: v.profondita_min_raggiunta ?? '',
+      assetto: v.assetto || '',
+      muta_giacca_mm: v.muta_giacca_mm ?? '',
+      muta_pantaloni_mm: v.muta_pantaloni_mm ?? '',
+      muta_bermuda_mm: v.muta_bermuda_mm ?? '',
+      guanti_mm: v.guanti_mm ?? '',
+      calzari_mm: v.calzari_mm ?? '',
+      zavorra_kg: v.zavorra_kg ?? '',
+      pinne: v.pinne || '',
+      usa_computer_orologio: !!v.usa_computer_orologio,
+      usa_coltello_tagliasagole: !!v.usa_coltello_tagliasagole,
+    })
+    setFormAperto(true)
+  }
+
+  function annullaForm() {
+    if (modificaId) {
+      pulisciBozza()
+      setModificaId(null)
+    }
+    setFormAperto(false)
   }
 
   function descrizioneBrevetto(b) {
@@ -154,13 +207,20 @@ export default function Logbook({ cliente }) {
       usa_coltello_tagliasagole: !!form.usa_coltello_tagliasagole,
     }
 
-    const { error: insertError } = await supabase.from('logbook').insert(payload)
+    const { error: salvataggioError } = modificaId
+      ? await supabase
+          .from('logbook')
+          .update(payload)
+          .eq('id', modificaId)
+          .eq('confermato_da_istruttore', false)
+      : await supabase.from('logbook').insert(payload)
     setSalvataggio(false)
 
-    if (insertError) {
-      setError(insertError.message)
+    if (salvataggioError) {
+      setError(salvataggioError.message)
     } else {
       pulisciBozza()
+      setModificaId(null)
       setFormAperto(false)
       carica()
     }
@@ -247,9 +307,16 @@ export default function Logbook({ cliente }) {
             )}
             {v.corso && <p className="brevetto-riga">Corso: {v.corso}</p>}
             {v.note && <p className="brevetto-riga logbook-note">{v.note}</p>}
-            <span className={'badge ' + (v.confermato_da_istruttore ? 'badge-ok' : 'badge-neutro')}>
-              {v.confermato_da_istruttore ? 'Confermata dall\'istruttore' : 'Da confermare'}
-            </span>
+            <div className="brevetto-card-piede">
+              <span className={'badge ' + (v.confermato_da_istruttore ? 'badge-ok' : 'badge-neutro')}>
+                {v.confermato_da_istruttore ? 'Confermata dall\'istruttore' : 'Da confermare'}
+              </span>
+              {!v.confermato_da_istruttore && !(formAperto && modificaId === v.id) && (
+                <button className="btn-secondary" onClick={() => apriModifica(v)}>
+                  Modifica
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -262,7 +329,7 @@ export default function Logbook({ cliente }) {
 
       {formAperto && (
         <form onSubmit={handleSubmit} className="brevetto-form">
-          <h2>Nuova uscita</h2>
+          <h2>{modificaId ? 'Modifica uscita' : 'Nuova uscita'}</h2>
 
           <div className="brevetti-row">
             <div className="campo">
@@ -675,13 +742,15 @@ export default function Logbook({ cliente }) {
           </div>
 
           <p className="hint">
-            La conferma dell'istruttore viene registrata dallo staff, non è auto-dichiarabile.
+            {modificaId
+              ? "Puoi modificare questa uscita solo finché non viene confermata dall'istruttore."
+              : "La conferma dell'istruttore viene registrata dallo staff, non è auto-dichiarabile."}
           </p>
 
           {error && <p className="errore-form">{error}</p>}
 
           <div className="brevetti-form-actions">
-            <button type="button" className="btn-secondary" onClick={() => setFormAperto(false)}>
+            <button type="button" className="btn-secondary" onClick={annullaForm}>
               Annulla
             </button>
             <button type="submit" className="btn-primary" disabled={salvataggio}>
