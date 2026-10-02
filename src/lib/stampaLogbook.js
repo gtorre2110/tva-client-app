@@ -158,8 +158,9 @@ function attendiImmagini(container) {
 }
 
 // formato: 'A6' (dimensione identica all'originale cartaceo) oppure
-// 'A5' (stessa scheda, centrata su un foglio più grande, con margine
-// intorno — comodo per chi non ha carta A6).
+// 'A5' (stessa scheda, ingrandita per riempire il foglio più grande,
+// con un piccolo margine — non lascia bordo bianco inutile).
+const MARGINE_A5_MM = 6
 export async function generaPdfLogbook(cliente, voci, formattaData, formato = 'A6') {
   if (!voci || voci.length === 0) return
 
@@ -189,12 +190,24 @@ export async function generaPdfLogbook(cliente, voci, formattaData, formato = 'A
       const canvas = await html2canvas(el, { scale: scala, backgroundColor: '#ffffff' })
       const immagine = canvas.toDataURL('image/jpeg', 0.95)
 
-      const larghezzaSchedaMm = el.offsetWidth / PX_PER_MM
-      const altezzaSchedaMm = el.offsetHeight / PX_PER_MM
+      let larghezzaSchedaMm = el.offsetWidth / PX_PER_MM
+      let altezzaSchedaMm = el.offsetHeight / PX_PER_MM
 
       const pagina = doc.internal.pageSize
       const larghezzaPagina = pagina.getWidth()
       const altezzaPagina = pagina.getHeight()
+
+      if (formato === 'A5') {
+        // Ingrandisce la scheda (mantenendo le proporzioni) per riempire il
+        // foglio A5 lasciando solo un piccolo margine, invece di lasciarla
+        // alla dimensione nativa con un grande bordo bianco intorno.
+        const scalaFoglio = Math.min(
+          (larghezzaPagina - 2 * MARGINE_A5_MM) / larghezzaSchedaMm,
+          (altezzaPagina - 2 * MARGINE_A5_MM) / altezzaSchedaMm
+        )
+        larghezzaSchedaMm *= scalaFoglio
+        altezzaSchedaMm *= scalaFoglio
+      }
 
       const x = (larghezzaPagina - larghezzaSchedaMm) / 2
       const y = (altezzaPagina - altezzaSchedaMm) / 2
