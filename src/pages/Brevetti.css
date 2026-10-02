@@ -27,6 +27,24 @@
   font-size: 0.9rem;
 }
 
+.badge-riferimento {
+  display: inline-block;
+  margin-top: 0.4rem;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+.brevetto-riferimento-btn {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.75rem;
+}
+
 .brevetto-carica-immagine {
   display: inline-block;
   margin-top: 0.5rem;

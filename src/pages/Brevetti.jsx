@@ -30,6 +30,7 @@ export default function Brevetti({ cliente }) {
   const [form, setForm, pulisciBozza] = useBozza(`brevetto-nuovo-${cliente.id}`, VUOTO)
   const [salvataggio, setSalvataggio] = useState(false)
   const [caricandoImmagine, setCaricandoImmagine] = useState(null)
+  const [impostandoRiferimento, setImpostandoRiferimento] = useState(null)
 
   useEffect(() => {
     carica()
@@ -63,6 +64,27 @@ export default function Brevetti({ cliente }) {
       setError('Errore nella conversione/caricamento del file: ' + err.message)
     }
     setCaricandoImmagine(null)
+  }
+
+  // Quando il cliente ha più di un brevetto, può indicare quale sia "quello
+  // da usare" (es. nel registro pre-evento, prima che un logbook lo
+  // determini da solo). Un indice unico lato DB garantisce che resti
+  // sempre uno solo: lo togliamo prima dagli altri e poi lo impostiamo qui.
+  async function impostaRiferimento(brevettoId) {
+    setImpostandoRiferimento(brevettoId)
+    setError(null)
+    await supabase
+      .from('brevetti')
+      .update({ brevetto_riferimento: false })
+      .eq('cliente_id', cliente.id)
+      .neq('id', brevettoId)
+    const { error: updError } = await supabase
+      .from('brevetti')
+      .update({ brevetto_riferimento: true })
+      .eq('id', brevettoId)
+    if (updError) setError(updError.message)
+    else carica()
+    setImpostandoRiferimento(null)
   }
 
   async function carica() {
@@ -159,6 +181,21 @@ export default function Brevetti({ cliente }) {
                 {b.scadenza && ` · Scadenza: ${formattaDataConAnno(b.scadenza)}`}
               </p>
               {scaduto && <span className="badge badge-alert">Scaduto</span>}
+
+              {brevetti.length > 1 && (
+                b.brevetto_riferimento ? (
+                  <span className="badge badge-riferimento">★ Brevetto principale</span>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-secondary brevetto-riferimento-btn"
+                    onClick={() => impostaRiferimento(b.id)}
+                    disabled={impostandoRiferimento === b.id}
+                  >
+                    {impostandoRiferimento === b.id ? 'Imposto…' : 'Imposta come principale'}
+                  </button>
+                )
+              )}
 
               {!immagine && (
                 <label className="brevetto-carica-immagine">
