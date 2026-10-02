@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/categorie', label: 'Categorie' },
   { to: '/brevetti', label: 'Brevetti' },
   { to: '/logbook', label: 'Logbook' },
+  { to: '/info', label: 'Info' },
   { to: '/aiuto', label: 'Aiuto' },
 ]
 

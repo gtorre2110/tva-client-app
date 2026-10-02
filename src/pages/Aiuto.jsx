@@ -37,6 +37,11 @@ export default function Aiuto() {
       </section>
 
       <section>
+        <h2>Info</h2>
+        <p>Informazioni utili del club: normative, attrezzatura richiesta, regole di sicurezza. Alcune si leggono direttamente nella pagina (con PDF scaricabile se disponibile), altre aprono direttamente un PDF.</p>
+      </section>
+
+      <section>
         <h2>Il menu</h2>
         <p>In basso a destra trovi un pulsante rotondo, sempre raggiungibile con il pollice: toccalo per aprire il menu con tutte le sezioni.</p>
       </section>
