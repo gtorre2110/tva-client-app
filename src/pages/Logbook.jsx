@@ -43,6 +43,8 @@ const VUOTO = {
   calzari_mm: '',
   zavorra_kg: '',
   pinne: '',
+  usa_computer_orologio: false,
+  usa_coltello_tagliasagole: false,
 }
 
 export default function Logbook({ cliente }) {
@@ -148,6 +150,8 @@ export default function Logbook({ cliente }) {
       calzari_mm: form.calzari_mm === '' ? null : Number(form.calzari_mm),
       zavorra_kg: form.zavorra_kg === '' ? null : Number(form.zavorra_kg),
       pinne: form.pinne.trim() || null,
+      usa_computer_orologio: !!form.usa_computer_orologio,
+      usa_coltello_tagliasagole: !!form.usa_coltello_tagliasagole,
     }
 
     const { error: insertError } = await supabase.from('logbook').insert(payload)
@@ -640,6 +644,24 @@ export default function Logbook({ cliente }) {
                 onChange={(e) => aggiorna('pinne', e.target.value)}
               />
             </div>
+          </div>
+          <div className="brevetti-row">
+            <label className="campo-checkbox">
+              <input
+                type="checkbox"
+                checked={form.usa_computer_orologio}
+                onChange={(e) => aggiorna('usa_computer_orologio', e.target.checked)}
+              />
+              Computer/Orologio
+            </label>
+            <label className="campo-checkbox">
+              <input
+                type="checkbox"
+                checked={form.usa_coltello_tagliasagole}
+                onChange={(e) => aggiorna('usa_coltello_tagliasagole', e.target.checked)}
+              />
+              Coltello/Tagliasagole
+            </label>
           </div>
 
           <div className="campo">

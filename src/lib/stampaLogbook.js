@@ -24,6 +24,10 @@ function numeroOTrattino(v, unita = '') {
   return v || v === 0 ? `${v}${unita}` : '___'
 }
 
+function flag(etichetta, valore) {
+  return `<span class="scelta">${valore ? '☑' : '☐'} ${etichetta}</span>`
+}
+
 function scheda(v, cliente, formattaData) {
   const luogo = v.localita_immersione?.nome || v.luogo || ''
   const istruttoreDelClub = v.istruttori?.nome || v.istruttore_nome_libero || ''
@@ -68,8 +72,9 @@ function scheda(v, cliente, formattaData) {
 
       <div class="blocco titolo">Attrezzatura utilizzata</div>
       <div class="blocco">
-        <div>Giacca muta <strong>${numeroOTrattino(v.muta_giacca_mm, 'mm')}</strong> Pantaloni muta <strong>${numeroOTrattino(v.muta_pantaloni_mm, 'mm')}</strong> Bermuda <strong>${numeroOTrattino(v.muta_bermuda_mm, 'mm')}</strong></div>
-        <div>Guanti <strong>${numeroOTrattino(v.guanti_mm, 'mm')}</strong> Calzari <strong>${numeroOTrattino(v.calzari_mm, 'mm')}</strong> Zavorra <strong>${numeroOTrattino(v.zavorra_kg, 'kg')}</strong> Pinne <strong>${v.pinne || '—'}</strong></div>
+        <div>Giacca muta mm <strong>${numeroOTrattino(v.muta_giacca_mm)}</strong> Pantaloni muta mm <strong>${numeroOTrattino(v.muta_pantaloni_mm)}</strong> Bermuda mm <strong>${numeroOTrattino(v.muta_bermuda_mm)}</strong></div>
+        <div>Guanti mm <strong>${numeroOTrattino(v.guanti_mm)}</strong> Calzari mm <strong>${numeroOTrattino(v.calzari_mm)}</strong> Zavorra kg <strong>${numeroOTrattino(v.zavorra_kg)}</strong> Pinne <strong>${v.pinne || '—'}</strong></div>
+        <div>${flag('Computer/Orologio', v.usa_computer_orologio)} ${flag('Coltello/Tagliasagole', v.usa_coltello_tagliasagole)}</div>
       </div>
 
       <div class="blocco titolo">Note / Sensazioni</div>
