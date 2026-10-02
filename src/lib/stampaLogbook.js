@@ -1,7 +1,13 @@
 // Apre una finestra con una "scheda" per ogni voce, in un formato che
-// replica la scheda cartacea "Registrazione immersioni: Apnea in mare",
-// pronta per essere stampata o salvata come PDF con la funzione di
-// stampa del browser (nessuna libreria esterna).
+// replica il più possibile la scheda cartacea originale "Registrazione
+// immersioni: Apnea in mare" (formato A6, logo e testo allineati a
+// sinistra come il cartaceo), pronta per essere stampata o salvata come
+// PDF con la funzione di stampa del browser (nessuna libreria esterna).
+//
+// Impostata per la stampa in A6 (una scheda = un foglio, come
+// l'originale). Chi preferisce la A5 può comunque scegliere quel
+// formato dalla finestra di stampa del browser: il contenuto si
+// adatta (resta solo più margine intorno).
 
 const CIELO = { sereno: 'Sereno', velato: 'Velato', coperto: 'Coperto', pioggia: 'Pioggia' }
 const SUPERFICIE = { calma: 'Calma', quasi_calma: 'QuasiCalma', mossa: 'Mossa', molto_mossa: 'MoltoMossa' }
@@ -18,7 +24,7 @@ function numeroOTrattino(v, unita = '') {
   return v || v === 0 ? `${v}${unita}` : '___'
 }
 
-function scheda(v, formattaData) {
+function scheda(v, cliente, formattaData) {
   const luogo = v.localita_immersione?.nome || v.luogo || ''
   const istruttoreDelClub = v.istruttori?.nome || v.istruttore_nome_libero || ''
   const numeroBrevetto = v.brevetti?.numero_brevetto || ''
@@ -27,13 +33,14 @@ function scheda(v, formattaData) {
     <section class="scheda">
       <div class="intestazione">
         <img src="/logo-scheda.png" alt="" class="logo" />
-        <div>
+        <div class="titoli">
           <h1>Scheda di registrazione immersioni:</h1>
           <h2>Apnea in mare</h2>
         </div>
+        <div class="socio">${cliente.nome}<br />${cliente.cognome}</div>
       </div>
 
-      <div class="riga-top">
+      <div class="riga riga-uscita">
         <span>N°Uscita <strong>${numeroOTrattino(v.numero_uscita)}</strong></span>
         <span>data <strong>${formattaData(v.data)}</strong></span>
         <span>${scelte({ lago: 'Lago', mare: 'Mare' }, v.specchio_acqua)}</span>
@@ -76,7 +83,7 @@ function scheda(v, formattaData) {
 }
 
 export function stampaLogbook(cliente, voci, formattaData) {
-  const schede = voci.map((v) => scheda(v, formattaData)).join('\n')
+  const schede = voci.map((v) => scheda(v, cliente, formattaData)).join('\n')
 
   const html = `
     <!doctype html>
@@ -85,26 +92,64 @@ export function stampaLogbook(cliente, voci, formattaData) {
         <meta charset="utf-8" />
         <title>Logbook — ${cliente.nome} ${cliente.cognome}</title>
         <style>
-          body { font-family: -apple-system, Arial, sans-serif; color: #12181f; margin: 1.5rem; font-size: 0.85rem; }
-          .scheda { max-width: 620px; margin: 0 auto 1.5rem; border: 2px solid #12181f; border-radius: 4px; page-break-inside: avoid; overflow: hidden; }
-          .intestazione { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.7rem 0.9rem; border-bottom: 2px solid #12181f; background: #eaf5fb; text-align: center; }
-          .intestazione .logo { height: 48px; width: auto; }
-          .intestazione h1 { margin: 0; font-size: 0.9rem; font-weight: 700; }
-          .intestazione h2 { margin: 0; font-size: 1.15rem; font-weight: 700; color: #006699; }
-          .riga-top { display: flex; justify-content: center; gap: 1.75rem; padding: 0.5rem 0.9rem; border-bottom: 1px solid #12181f; font-size: 0.9rem; text-align: center; }
-          .blocco { padding: 0.45rem 0.9rem; border-bottom: 1px solid #ddd; text-align: center; }
-          .blocco.titolo { font-weight: 700; text-align: center; background: #f4f4f4; border-top: 1px solid #12181f; border-bottom: 1px solid #12181f; }
-          .blocco div { margin: 0.2rem 0; }
-          .blocco.note { min-height: 2.5rem; white-space: pre-wrap; text-align: left; }
-          .blocco.piede { border-bottom: none; }
-          .scelta { display: inline-block; margin: 0 0.35rem; }
+          @page { size: A6; margin: 4mm; }
+          * { box-sizing: border-box; }
+          html, body { margin: 0; padding: 0; }
+          body { font-family: Arial, Helvetica, sans-serif; color: #12181f; font-size: 7.3pt; line-height: 1.25; }
+
+          .scheda {
+            width: 97mm;
+            min-height: 140mm;
+            margin: 0 auto 6mm;
+            border: 1.1pt solid #12181f;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            page-break-after: always;
+            break-after: page;
+          }
+          .scheda:last-child { page-break-after: auto; break-after: auto; margin-bottom: 0; }
+
+          .intestazione {
+            display: flex;
+            align-items: center;
+            gap: 2mm;
+            padding: 2mm 2.5mm;
+            border-bottom: 1.1pt solid #12181f;
+            background: #eaf5fb;
+          }
+          .intestazione .logo { height: 11mm; width: auto; flex-shrink: 0; }
+          .intestazione .titoli { flex: 1; text-align: left; }
+          .intestazione h1 { margin: 0; font-size: 6.6pt; font-weight: 700; }
+          .intestazione h2 { margin: 0; font-size: 9.5pt; font-weight: 700; color: #006699; }
+          .intestazione .socio { font-size: 5.6pt; text-align: right; color: #333; line-height: 1.15; white-space: nowrap; }
+
+          .riga, .blocco {
+            padding: 1.4mm 2.5mm;
+            border-bottom: 0.7pt solid #12181f;
+            text-align: left;
+          }
+          .riga-uscita { display: flex; flex-wrap: wrap; gap: 0 3mm; align-items: baseline; }
+          .blocco div, .riga div { margin: 0.4mm 0; }
+          .blocco.titolo {
+            font-weight: 700;
+            text-align: center;
+            background: #f4f4f4;
+            border-top: 0.7pt solid #12181f;
+          }
+          .blocco.note { flex: 1; white-space: pre-wrap; }
+          .blocco.piede { border-bottom: none; margin-top: auto; }
+          .scelta { display: inline-block; margin-right: 2mm; white-space: nowrap; }
           strong { font-weight: 700; }
-          @media print { body { margin: 0.5cm; } .scheda { break-inside: avoid; } }
+
+          @media screen {
+            body { background: #ccc; padding: 6mm 0; }
+            .scheda { box-shadow: 0 1px 4px rgba(0,0,0,.3); background: #fff; }
+          }
         </style>
       </head>
       <body>
-        <h1 style="font-size:1.1rem;">Logbook di ${cliente.nome} ${cliente.cognome}</h1>
-        ${schede || '<p>Nessuna voce registrata.</p>'}
+        ${schede || '<p style="text-align:center">Nessuna voce registrata.</p>'}
       </body>
     </html>
   `
