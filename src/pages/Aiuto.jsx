@@ -38,7 +38,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Info</h2>
-        <p>Informazioni utili del club: normative, attrezzatura richiesta, regole di sicurezza. Alcune si leggono direttamente nella pagina (con PDF scaricabile se disponibile), altre aprono direttamente un PDF.</p>
+        <p>Due schede: "Informazioni" (testi del club da leggere, es. legge del mare o regole di sicurezza, con PDF scaricabile se disponibile) e "Documenti" (PDF pronti da scaricare o compilare, es. un modulo vergine).</p>
       </section>
 
       <section>
