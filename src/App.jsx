@@ -12,7 +12,6 @@ import Prenotazioni from './pages/Prenotazioni'
 import Profilo from './pages/Profilo'
 import Brevetti from './pages/Brevetti'
 import Logbook from './pages/Logbook'
-import Categorie from './pages/Categorie'
 import Aiuto from './pages/Aiuto'
 import Info from './pages/Info'
 
@@ -82,7 +81,6 @@ export default function App() {
           <Route path="/prenotazioni" element={<Prenotazioni cliente={cliente} />} />
           <Route path="/brevetti" element={<Brevetti cliente={cliente} />} />
           <Route path="/logbook" element={<Logbook cliente={cliente} />} />
-          <Route path="/categorie" element={<Categorie cliente={cliente} />} />
           <Route path="/info" element={<Info />} />
           <Route path="/aiuto" element={<Aiuto />} />
           <Route path="*" element={<Navigate to="/profilo" replace />} />

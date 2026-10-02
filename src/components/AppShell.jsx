@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { to: '/profilo', label: 'Il mio profilo' },
   { to: '/attivita', label: 'Attività' },
   { to: '/prenotazioni', label: 'Prenotazioni' },
-  { to: '/categorie', label: 'Categorie' },
   { to: '/brevetti', label: 'Brevetti' },
   { to: '/logbook', label: 'Logbook' },
   { to: '/info', label: 'Info' },

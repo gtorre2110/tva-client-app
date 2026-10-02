@@ -8,12 +8,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Il tuo profilo</h2>
-        <p>È la schermata che si apre per prima. Mostra i tuoi dati, saldo ingressi, scadenza del certificato medico, e ti permette di caricare una foto e attivare/disattivare le email. Nella sezione "Dati personali" puoi compilare indirizzo, codice fiscale e altri dati facoltativi.</p>
-      </section>
-
-      <section>
-        <h2>Categorie</h2>
-        <p>Indica a quali categorie di attività sei interessato. Lo staff dovrà confermarle. Le categorie sono raggruppate per macrocategoria: tocca il titolo di un gruppo per richiederle (o ritirarle) tutte insieme.</p>
+        <p>È la schermata che si apre per prima. Mostra i tuoi dati, saldo ingressi, scadenza del certificato medico, e ti permette di caricare una foto e attivare/disattivare le email. Più sotto trovi due sezioni a comparsa: "Categorie" (a quali attività sei interessato: lo staff dovrà confermarle; le categorie sono raggruppate per macrocategoria, tocca il titolo di un gruppo per richiederle o ritirarle tutte insieme) e "Dati personali" (indirizzo, codice fiscale e altri dati facoltativi).</p>
       </section>
 
       <section>

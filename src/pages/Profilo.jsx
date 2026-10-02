@@ -8,6 +8,7 @@ import {
 } from '../lib/util'
 import { caricaImmagine } from '../lib/upload'
 import DatiPersonali from './DatiPersonali'
+import Categorie from './Categorie'
 import './Profilo.css'
 
 export default function Profilo({ cliente }) {
@@ -159,6 +160,8 @@ export default function Profilo({ cliente }) {
           Voglio ricevere email (scadenza certificato, saldo ingressi, lista d'attesa)
         </label>
       </div>
+
+      <Categorie cliente={cliente} />
 
       <DatiPersonali clienteId={cliente.id} />
 
