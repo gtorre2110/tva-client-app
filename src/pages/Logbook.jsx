@@ -3,7 +3,7 @@ import { supabase } from '../supabaseClient'
 import { useBozza } from '../lib/useBozza'
 import { formattaDataConAnno } from '../lib/util'
 import { scaricaCSV } from '../lib/csv'
-import { stampaLogbook } from '../lib/stampaLogbook'
+import { generaPdfLogbook } from '../lib/stampaLogbook'
 import './Brevetti.css'
 import './Logbook.css'
 
@@ -59,6 +59,7 @@ export default function Logbook({ cliente }) {
   const [form, setForm, pulisciBozza] = useBozza(`logbook-nuovo-${cliente.id}`, VUOTO)
   const [salvataggio, setSalvataggio] = useState(false)
   const [modificaId, setModificaId] = useState(null)
+  const [generazionePdf, setGenerazionePdf] = useState(null)
 
   useEffect(() => {
     carica()
@@ -252,8 +253,15 @@ export default function Logbook({ cliente }) {
     scaricaCSV('logbook.csv', colonneCSV, righeCSV)
   }
 
-  function esportaStampa() {
-    stampaLogbook(cliente, voci, formattaDataConAnno)
+  async function esportaPdf(formato) {
+    setGenerazionePdf(formato)
+    try {
+      await generaPdfLogbook(cliente, voci, formattaDataConAnno, formato)
+    } catch (err) {
+      setError('Errore nella generazione del PDF: ' + err.message)
+    } finally {
+      setGenerazionePdf(null)
+    }
   }
 
   return (
@@ -265,8 +273,11 @@ export default function Logbook({ cliente }) {
           <button className="btn-secondary" onClick={esportaCSV}>
             Scarica CSV
           </button>
-          <button className="btn-secondary" onClick={esportaStampa}>
-            Scarica come schede (stampa/PDF)
+          <button className="btn-secondary" disabled={!!generazionePdf} onClick={() => esportaPdf('A6')}>
+            {generazionePdf === 'A6' ? 'Preparo il PDF…' : 'Scarica PDF (A6)'}
+          </button>
+          <button className="btn-secondary" disabled={!!generazionePdf} onClick={() => esportaPdf('A5')}>
+            {generazionePdf === 'A5' ? 'Preparo il PDF…' : 'Scarica PDF (A5)'}
           </button>
         </div>
       )}
