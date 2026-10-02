@@ -131,10 +131,16 @@ export default function Brevetti({ cliente }) {
           const istruttore = b.istruttori?.nome || b.istruttore_nome_libero
           const scaduto = certificatoScaduto(b.scadenza)
           const immagine = b.tipi_brevetto?.immagine_url || b.immagine_url
+          const immaginePdf = (immagine || '').toLowerCase().endsWith('.pdf')
 
           return (
             <div className="brevetto-card" key={b.id}>
-              {immagine && <img src={immagine} alt="" className="brevetto-immagine" />}
+              {immagine && !immaginePdf && <img src={immagine} alt="" className="brevetto-immagine" />}
+              {immagine && immaginePdf && (
+                <a href={immagine} target="_blank" rel="noreferrer" className="brevetto-pdf-link">
+                  Apri il PDF del brevetto
+                </a>
+              )}
               <h2>{[didattica, tipo].filter(Boolean).join(' — ') || 'Brevetto'}</h2>
               {b.numero_brevetto && <p className="brevetto-riga">N. {b.numero_brevetto}</p>}
               {istruttore && <p className="brevetto-riga">Istruttore: {istruttore}</p>}
@@ -146,10 +152,10 @@ export default function Brevetti({ cliente }) {
 
               {!immagine && (
                 <label className="brevetto-carica-immagine">
-                  {caricandoImmagine === b.id ? 'Carico…' : 'Carica una foto del brevetto'}
+                  {caricandoImmagine === b.id ? 'Carico…' : 'Carica una foto o un PDF del brevetto'}
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,application/pdf"
                     hidden
                     disabled={caricandoImmagine === b.id}
                     onChange={(e) => caricaImmagineBrevetto(b.id, e.target.files[0])}
