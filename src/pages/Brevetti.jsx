@@ -4,6 +4,7 @@ import { useBozza } from '../lib/useBozza'
 import { formattaDataConAnno, certificatoScaduto } from '../lib/util'
 import { ordinaBrevetti } from '../lib/brevetti'
 import { caricaImmagine } from '../lib/upload'
+import { ePdf, convertiPrimaPaginaPdfInPng } from '../lib/convertiPdf'
 import './Brevetti.css'
 
 const VUOTO = {
@@ -39,18 +40,27 @@ export default function Brevetti({ cliente }) {
     setCaricandoImmagine(brevettoId)
     setError(null)
 
-    const estensione = file.name.split('.').pop()
-    const { url, error: uploadError } = await caricaImmagine(
-      'immagini-brevetti',
-      `${cliente.id}/brevetto-${brevettoId}.${estensione}`,
-      file
-    )
+    try {
+      // Un PDF (es. scansione) viene convertito subito in PNG: così resta
+      // sempre mostrabile come immagine, sia nella scheda sia nel PDF del
+      // registro immersioni che lo staff genera a parte.
+      const fileDaCaricare = (await ePdf(file)) ? await convertiPrimaPaginaPdfInPng(file) : file
+      const estensione = fileDaCaricare.name.split('.').pop()
 
-    if (uploadError) {
-      setError(uploadError.message)
-    } else {
-      await supabase.from('brevetti').update({ immagine_url: url }).eq('id', brevettoId)
-      carica()
+      const { url, error: uploadError } = await caricaImmagine(
+        'immagini-brevetti',
+        `${cliente.id}/brevetto-${brevettoId}.${estensione}`,
+        fileDaCaricare
+      )
+
+      if (uploadError) {
+        setError(uploadError.message)
+      } else {
+        await supabase.from('brevetti').update({ immagine_url: url }).eq('id', brevettoId)
+        carica()
+      }
+    } catch (err) {
+      setError('Errore nella conversione/caricamento del file: ' + err.message)
     }
     setCaricandoImmagine(null)
   }
