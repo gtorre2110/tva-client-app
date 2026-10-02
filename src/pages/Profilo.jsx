@@ -13,6 +13,10 @@ import './Profilo.css'
 export default function Profilo({ cliente }) {
   const scaduto = certificatoScaduto(cliente.scadenza_certificato_medico)
   const inScadenza = certificatoInScadenza(cliente.scadenza_certificato_medico)
+  const danScaduto = certificatoScaduto(cliente.dan_scadenza)
+  const danInScadenza = certificatoInScadenza(cliente.dan_scadenza)
+  const fipsasScaduto = certificatoScaduto(cliente.fipsas_scadenza)
+  const fipsasInScadenza = certificatoInScadenza(cliente.fipsas_scadenza)
   const [accettaEmail, setAccettaEmail] = useState(cliente.accetta_email || false)
   const [salvataggio, setSalvataggio] = useState(false)
   const [fotoUrl, setFotoUrl] = useState(cliente.foto_url || null)
@@ -102,6 +106,44 @@ export default function Profilo({ cliente }) {
           <p className="avviso avviso-warning">
             Il tuo certificato medico sta per scadere il{' '}
             {formattaDataConAnno(cliente.scadenza_certificato_medico)}.
+          </p>
+        )}
+
+        {cliente.dan_scadenza && (
+          <div className="profilo-riga">
+            <span>Assicurazione DAN{cliente.dan_numero ? ` (n. ${cliente.dan_numero})` : ''}</span>
+            <strong className={danScaduto ? 'valore-alert' : danInScadenza ? 'valore-warning' : ''}>
+              {formattaDataConAnno(cliente.dan_scadenza)}
+            </strong>
+          </div>
+        )}
+        {danScaduto && (
+          <p className="avviso avviso-alert">
+            La tua assicurazione DAN è scaduta. Contatta lo staff per aggiornarla.
+          </p>
+        )}
+        {!danScaduto && danInScadenza && (
+          <p className="avviso avviso-warning">
+            La tua assicurazione DAN sta per scadere il {formattaDataConAnno(cliente.dan_scadenza)}.
+          </p>
+        )}
+
+        {cliente.fipsas_scadenza && (
+          <div className="profilo-riga">
+            <span>Tessera FIPSAS{cliente.fipsas_numero ? ` (n. ${cliente.fipsas_numero})` : ''}</span>
+            <strong className={fipsasScaduto ? 'valore-alert' : fipsasInScadenza ? 'valore-warning' : ''}>
+              {formattaDataConAnno(cliente.fipsas_scadenza)}
+            </strong>
+          </div>
+        )}
+        {fipsasScaduto && (
+          <p className="avviso avviso-alert">
+            La tua tessera FIPSAS è scaduta. Contatta lo staff per aggiornarla.
+          </p>
+        )}
+        {!fipsasScaduto && fipsasInScadenza && (
+          <p className="avviso avviso-warning">
+            La tua tessera FIPSAS sta per scadere il {formattaDataConAnno(cliente.fipsas_scadenza)}.
           </p>
         )}
 
