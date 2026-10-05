@@ -37,7 +37,7 @@ export default function Attivita({ cliente }) {
         .order('ora_inizio', { ascending: true }),
       supabase
         .from('prenotazioni')
-        .select('id, attivita_id, stato')
+        .select('id, attivita_id, stato, tardiva')
         .eq('cliente_id', cliente.id)
         .in('stato', ['confermata', 'in_coda']),
     ])
@@ -124,7 +124,7 @@ export default function Attivita({ cliente }) {
     setLoading(false)
   }
 
-  async function prenota(occorrenza, stato = 'confermata') {
+  async function prenota(occorrenza, stato = 'confermata', tardiva = false) {
     if (prenotazioniPerAttivita.has(occorrenza.id)) return
 
     setInCorso(occorrenza.id)
@@ -136,6 +136,7 @@ export default function Attivita({ cliente }) {
       nome: cliente.nome,
       cognome: cliente.cognome,
       stato,
+      tardiva,
     })
 
     setInCorso(null)
@@ -147,7 +148,7 @@ export default function Attivita({ cliente }) {
       setEsito({ tipo: 'errore', id: occorrenza.id, messaggio })
       if (insertError.code === '23505') carica()
     } else {
-      setEsito({ tipo: stato === 'in_coda' ? 'coda' : 'ok', id: occorrenza.id })
+      setEsito({ tipo: tardiva ? (stato === 'in_coda' ? 'tardiva-coda' : 'tardiva') : stato === 'in_coda' ? 'coda' : 'ok', id: occorrenza.id })
       carica()
     }
   }
@@ -251,6 +252,11 @@ export default function Attivita({ cliente }) {
             piena &&
             !cliente.prenotazioni_bloccate &&
             !certificatoNonValido
+          const tardiva = !mia && !o.prenotabile_ora && o.prenotabile_tardi
+          const puoPrenotareTardi =
+            tardiva &&
+            !cliente.prenotazioni_bloccate &&
+            !certificatoNonValido
           const puoAnnullare = (giaPrenotata || giaInCoda) && !cliente.prenotazioni_bloccate
           const inLoading = inCorso === o.id
           const { giorno, num, mese } = scomponiData(o.data)
@@ -260,8 +266,8 @@ export default function Attivita({ cliente }) {
 
           let tag = null
           let tagClass = ''
-          if (giaPrenotata) { tag = 'PRENOTATA'; tagClass = 'badge-ok' }
-          else if (giaInCoda) { tag = 'IN LISTA D\'ATTESA'; tagClass = 'badge-warning' }
+          if (giaPrenotata) { tag = mia?.tardiva ? 'PRENOTATA · TARDIVA' : 'PRENOTATA'; tagClass = mia?.tardiva ? 'badge-warning' : 'badge-ok' }
+          else if (giaInCoda) { tag = mia?.tardiva ? 'IN LISTA D\'ATTESA · TARDIVA' : 'IN LISTA D\'ATTESA'; tagClass = 'badge-warning' }
           else if (piena) { tag = 'COMPLETA'; tagClass = 'badge-neutro' }
 
           return (
@@ -296,7 +302,14 @@ export default function Attivita({ cliente }) {
                   </div>
                 )}
 
-                {!o.prenotabile_ora && !mia && o.posti_disponibili > 0 && (
+                {tardiva && (
+                  <p className="hint">
+                    Le prenotazioni sono chiuse. Puoi registrare comunque la richiesta come prenotazione tardiva
+                    {piena ? ' (l\'attività è al completo: andrai in fondo alla lista d\'attesa)' : ''}:
+                    contatta lo staff per la conferma.
+                  </p>
+                )}
+                {!tardiva && !o.prenotabile_ora && !mia && o.posti_disponibili > 0 && (
                   <p className="hint">Le prenotazioni non sono ancora aperte o sono già chiuse.</p>
                 )}
 
@@ -313,6 +326,12 @@ export default function Attivita({ cliente }) {
                 )}
                 {esito?.id === o.id && esito.tipo === 'coda' && (
                   <p className="avviso avviso-ok">Sei stato messo in lista d'attesa.</p>
+                )}
+                {esito?.id === o.id && esito.tipo === 'tardiva' && (
+                  <p className="avviso avviso-ok">Prenotazione tardiva registrata. Contatta lo staff per la conferma.</p>
+                )}
+                {esito?.id === o.id && esito.tipo === 'tardiva-coda' && (
+                  <p className="avviso avviso-ok">Attività al completo: sei in fondo alla lista d'attesa (richiesta tardiva). Contatta lo staff per la conferma.</p>
                 )}
                 {esito?.id === o.id && esito.tipo === 'errore' && (
                   <p className="avviso avviso-alert">{esito.messaggio}</p>
@@ -332,18 +351,18 @@ export default function Attivita({ cliente }) {
                   ) : piena ? (
                     <button
                       className="btn-secondary attivita-card-btn"
-                      disabled={!puoMettersInCoda || inLoading}
-                      onClick={() => prenota(o, 'in_coda')}
+                      disabled={!(puoMettersInCoda || puoPrenotareTardi) || inLoading}
+                      onClick={() => prenota(o, 'in_coda', !o.prenotabile_ora)}
                     >
-                      {inLoading ? 'Attendere…' : 'Mettiti in lista d\'attesa'}
+                      {inLoading ? 'Attendere…' : tardiva ? 'Lista d\'attesa (tardiva)' : 'Mettiti in lista d\'attesa'}
                     </button>
                   ) : (
                     <button
                       className="btn-primary attivita-card-btn"
-                      disabled={!prenotabile || inLoading}
-                      onClick={() => prenota(o)}
+                      disabled={!(prenotabile || puoPrenotareTardi) || inLoading}
+                      onClick={() => prenota(o, 'confermata', !o.prenotabile_ora)}
                     >
-                      {inLoading ? 'Prenoto…' : 'Prenota'}
+                      {inLoading ? 'Prenoto…' : tardiva ? 'Prenota (tardiva)' : 'Prenota'}
                     </button>
                   )}
                 </div>

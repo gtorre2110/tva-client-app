@@ -162,10 +162,11 @@ export default function Prenotazioni({ cliente }) {
           let messaggio = null
           if (p.presente) { tag = 'PRESENTE REGISTRATA'; tagClass = 'badge-ok' }
           else if (p.stato === 'confermata') {
-            tag = 'CONFERMATA'; tagClass = 'badge-ok'
-            if (periodo === 'prossime') messaggio = "L'ingresso viene scalato al check-in."
+            tag = p.tardiva ? 'TARDIVA · DA CONFERMARE' : 'CONFERMATA'; tagClass = p.tardiva ? 'badge-warning' : 'badge-ok'
+            if (periodo === 'prossime') messaggio = p.tardiva ? 'Prenotazione fatta dopo la chiusura: contatta lo staff per la conferma.' : "L'ingresso viene scalato al check-in."
           } else if (p.stato === 'in_coda') {
             tag = posizione ? `IN CODA · ${posizione}°` : 'IN LISTA D\'ATTESA'
+            if (p.tardiva) tag += ' · TARDIVA'
             tagClass = 'badge-warning'
             if (periodo === 'prossime') messaggio = 'Se si libera un posto ti iscriviamo in automatico e ti avvisiamo via email.'
           } else if (p.stato === 'annullata') {
