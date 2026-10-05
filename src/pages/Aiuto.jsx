@@ -13,7 +13,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Attività</h2>
-        <p>Le prossime attività disponibili, filtrabili per macrocategoria con le schede in alto. Se un'attività è al completo puoi metterti in lista d'attesa: se si libera un posto, la tua prenotazione si conferma da sola e ricevi un'email (se hai attivato il consenso).</p>
+        <p>Le prossime attività disponibili, filtrabili per macrocategoria con le schede in alto. Se un'attività è al completo puoi metterti in lista d'attesa: se si libera un posto, la tua prenotazione si conferma da sola e ricevi un'email (se hai attivato il consenso). Se le prenotazioni sono chiuse ma l'attività non è ancora iniziata, puoi comunque registrare una richiesta "tardiva": se ci sono posti risulta prenotata, altrimenti vai in fondo alla lista d'attesa, e in entrambi i casi devi contattare lo staff per la conferma (lo staff decide chi è presente al check-in).</p>
       </section>
 
       <section>
@@ -23,7 +23,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Brevetti</h2>
-        <p>Registra i tuoi brevetti scegliendo da un catalogo (o scrivendo a mano se la tua didattica non c'è ancora). Puoi caricare l'immagine del tuo brevetto (una foto o un PDF): se lo fai viene mostrata al posto dell'immagine standard del catalogo, e puoi cambiarla o eliminarla quando vuoi. Se hai più brevetti, puoi indicare quale sia quello "principale": è quello che lo staff usa nei documenti del registro delle uscite.</p>
+        <p>Registra i tuoi brevetti scegliendo da un catalogo (o scrivendo a mano se la tua didattica non c'è ancora). Con "Carica immagine del brevetto" puoi caricare l'immagine del tuo brevetto (una foto o un PDF): se lo fai viene mostrata al posto dell'immagine standard del catalogo, e puoi cambiarla o eliminarla quando vuoi. Se hai più brevetti, puoi indicare quale sia quello "principale": è quello che lo staff usa nei documenti del registro delle uscite.</p>
       </section>
 
       <section>
@@ -39,6 +39,11 @@ export default function Aiuto() {
       <section>
         <h2>Il menu</h2>
         <p>In basso a destra trovi un pulsante rotondo, sempre raggiungibile con il pollice: toccalo per aprire il menu con tutte le sezioni.</p>
+      </section>
+
+      <section>
+        <h2>Segnalare un'anomalia</h2>
+        <p>Se qualcosa non funziona, scrivi a apneatreviso@gmail.com con oggetto "anomalia app client", indicando cosa stavi facendo, dispositivo e browser e, se puoi, uno screenshot.</p>
       </section>
 
       <section>
