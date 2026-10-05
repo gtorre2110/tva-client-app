@@ -236,9 +236,7 @@ export default function Brevetti({ cliente }) {
                 <label className="brevetto-carica-immagine">
                   {caricandoImmagine === b.id
                     ? 'Carico…'
-                    : immagine
-                      ? 'Carica la tua foto o un PDF del brevetto'
-                      : 'Carica una foto o un PDF del brevetto'}
+                    : 'Carica immagine del brevetto'}
                   <input
                     type="file"
                     accept="image/*,application/pdf"
