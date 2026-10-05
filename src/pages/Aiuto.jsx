@@ -23,7 +23,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Brevetti</h2>
-        <p>Registra i tuoi brevetti scegliendo da un catalogo (o scrivendo a mano se la tua didattica non c'è ancora). Se manca l'immagine standard, puoi caricare tu una foto del tuo brevetto.</p>
+        <p>Registra i tuoi brevetti scegliendo da un catalogo (o scrivendo a mano se la tua didattica non c'è ancora). Puoi caricare una tua foto o un PDF del brevetto: se lo fai viene mostrata al posto dell'immagine standard del catalogo, e puoi cambiarla o eliminarla quando vuoi. Se hai più brevetti, puoi indicare quale sia quello "principale": è quello che lo staff usa nei documenti del registro delle uscite.</p>
       </section>
 
       <section>

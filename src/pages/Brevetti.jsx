@@ -3,7 +3,7 @@ import { supabase } from '../supabaseClient'
 import { useBozza } from '../lib/useBozza'
 import { formattaDataConAnno, certificatoScaduto } from '../lib/util'
 import { ordinaBrevetti } from '../lib/brevetti'
-import { caricaImmagine } from '../lib/upload'
+import { caricaImmagine, eliminaImmagine, percorsoDaUrl } from '../lib/upload'
 import { ePdf, convertiPrimaPaginaPdfInPng } from '../lib/convertiPdf'
 import './Brevetti.css'
 
@@ -36,9 +36,9 @@ export default function Brevetti({ cliente }) {
     carica()
   }, [])
 
-  async function caricaImmagineBrevetto(brevettoId, file) {
+  async function caricaImmagineBrevetto(brevetto, file) {
     if (!file) return
-    setCaricandoImmagine(brevettoId)
+    setCaricandoImmagine(brevetto.id)
     setError(null)
 
     try {
@@ -47,21 +47,53 @@ export default function Brevetti({ cliente }) {
       // registro immersioni che lo staff genera a parte.
       const fileDaCaricare = (await ePdf(file)) ? await convertiPrimaPaginaPdfInPng(file) : file
       const estensione = fileDaCaricare.name.split('.').pop()
+      const percorso = `${cliente.id}/brevetto-${brevetto.id}.${estensione}`
 
-      const { url, error: uploadError } = await caricaImmagine(
-        'immagini-brevetti',
-        `${cliente.id}/brevetto-${brevettoId}.${estensione}`,
-        fileDaCaricare
-      )
+      const { url, error: uploadError } = await caricaImmagine('immagini-brevetti', percorso, fileDaCaricare)
 
       if (uploadError) {
         setError(uploadError.message)
       } else {
-        await supabase.from('brevetti').update({ immagine_url: url }).eq('id', brevettoId)
-        carica()
+        // Il parametro ?v= evita che, sovrascrivendo lo stesso percorso, il
+        // browser continui a mostrare la vecchia immagine dalla cache.
+        const urlNuovo = `${url}?v=${Date.now()}`
+        const { error: updateError } = await supabase
+          .from('brevetti')
+          .update({ immagine_url: urlNuovo })
+          .eq('id', brevetto.id)
+        if (updateError) {
+          setError(updateError.message)
+        } else {
+          // Se l'estensione è cambiata (es. da jpg a png) il vecchio file
+          // resterebbe orfano nel bucket: lo togliamo.
+          if (brevetto.immagine_url && percorsoDaUrl('immagini-brevetti', brevetto.immagine_url) !== percorso) {
+            await eliminaImmagine('immagini-brevetti', brevetto.immagine_url)
+          }
+          carica()
+        }
       }
     } catch (err) {
       setError('Errore nella conversione/caricamento del file: ' + err.message)
+    }
+    setCaricandoImmagine(null)
+  }
+
+  // Toglie la foto caricata dal cliente: se il tipo di brevetto ha
+  // un'immagine standard in catalogo, la scheda torna a mostrare quella.
+  async function eliminaImmagineBrevetto(brevetto) {
+    if (!confirm("Eliminare l'immagine di questo brevetto?")) return
+    setCaricandoImmagine(brevetto.id)
+    setError(null)
+    const { error: rimozioneError } = await eliminaImmagine('immagini-brevetti', brevetto.immagine_url)
+    if (rimozioneError) {
+      setError(rimozioneError.message)
+    } else {
+      const { error: updateError } = await supabase
+        .from('brevetti')
+        .update({ immagine_url: null })
+        .eq('id', brevetto.id)
+      if (updateError) setError(updateError.message)
+      else carica()
     }
     setCaricandoImmagine(null)
   }
@@ -162,8 +194,11 @@ export default function Brevetti({ cliente }) {
           const tipo = b.tipi_brevetto?.tipo_brevetto || b.tipo_brevetto_libero
           const istruttore = b.istruttori?.nome || b.istruttore_nome_libero
           const scaduto = certificatoScaduto(b.scadenza)
-          const immagine = b.tipi_brevetto?.immagine_url || b.immagine_url
-          const immaginePdf = (immagine || '').toLowerCase().endsWith('.pdf')
+          // La foto caricata dal cliente ha la precedenza; l'immagine standard
+          // del catalogo si mostra solo se il cliente non ne ha caricata una.
+          const immaginePropria = b.immagine_url
+          const immagine = immaginePropria || b.tipi_brevetto?.immagine_url
+          const immaginePdf = (immagine || '').split('?')[0].toLowerCase().endsWith('.pdf')
 
           return (
             <div className="brevetto-card" key={b.id}>
@@ -197,17 +232,52 @@ export default function Brevetti({ cliente }) {
                 )
               )}
 
-              {!immagine && (
+              {!immaginePropria && (
                 <label className="brevetto-carica-immagine">
-                  {caricandoImmagine === b.id ? 'Carico…' : 'Carica una foto o un PDF del brevetto'}
+                  {caricandoImmagine === b.id
+                    ? 'Carico…'
+                    : immagine
+                      ? 'Carica la tua foto o un PDF del brevetto'
+                      : 'Carica una foto o un PDF del brevetto'}
                   <input
                     type="file"
                     accept="image/*,application/pdf"
                     hidden
                     disabled={caricandoImmagine === b.id}
-                    onChange={(e) => caricaImmagineBrevetto(b.id, e.target.files[0])}
+                    onChange={(e) => {
+                      const file = e.target.files[0]
+                      e.target.value = ''
+                      caricaImmagineBrevetto(b, file)
+                    }}
                   />
                 </label>
+              )}
+
+              {immaginePropria && (
+                <div className="brevetto-immagine-azioni">
+                  <label className="brevetto-carica-immagine">
+                    {caricandoImmagine === b.id ? 'Carico…' : 'Cambia immagine'}
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      hidden
+                      disabled={caricandoImmagine === b.id}
+                      onChange={(e) => {
+                        const file = e.target.files[0]
+                        e.target.value = ''
+                        caricaImmagineBrevetto(b, file)
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="btn-secondary brevetto-elimina-immagine"
+                    onClick={() => eliminaImmagineBrevetto(b)}
+                    disabled={caricandoImmagine === b.id}
+                  >
+                    Elimina immagine
+                  </button>
+                </div>
               )}
             </div>
           )
