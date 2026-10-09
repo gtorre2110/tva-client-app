@@ -37,6 +37,13 @@ function campo(etichetta, valore, { unita = '', grow = 1 } = {}) {
   return `<span class="campo" style="flex: ${grow} 1 0">${etichetta ? `<span class="etichetta">${etichetta}</span>` : ''}${corpo}</span>`
 }
 
+// Riga di caselle da spuntare: stessa altezza e stessi margini delle righe
+// con i campi, con le opzioni distribuite su tutta la larghezza.
+function rigaScelte(etichetta, opzioni) {
+  const intestazione = etichetta ? `<span class="etichetta">${etichetta}</span>` : ''
+  return `<div class="riga-campi riga-scelte">${intestazione}${opzioni}</div>`
+}
+
 function riga(...campi) {
   return `<div class="riga-campi">${campi.join('')}</div>`
 }
@@ -74,9 +81,9 @@ function scheda(v, cliente, formattaData) {
 
       <div class="blocco titolo">Condizioni Ambientali</div>
       <div class="blocco">
-        <div>CIELO: ${scelte(CIELO, v.condizioni_cielo)}</div>
-        <div>SUPERFICIE: ${scelte(SUPERFICIE, v.condizioni_superficie)}</div>
-        <div>VISIBILITÀ: ${scelte(VISIBILITA, v.visibilita)}</div>
+        ${rigaScelte('CIELO:', scelte(CIELO, v.condizioni_cielo))}
+        ${rigaScelte('SUPERFICIE:', scelte(SUPERFICIE, v.condizioni_superficie))}
+        ${rigaScelte('VISIBILITÀ:', scelte(VISIBILITA, v.visibilita))}
         ${riga('<span class="campo" style="flex: 0 0 auto"><span class="etichetta">TEMPERATURA:</span></span>', campo('Acqua', v.temperatura_acqua, { unita: '°C' }), campo('Aria', v.temperatura_aria, { unita: '°C' }))}
       </div>
 
@@ -84,14 +91,14 @@ function scheda(v, cliente, formattaData) {
       <div class="blocco">
         ${riga(campo('N. Tuffi Svolti', v.numero_tuffi, { grow: 0.8 }), campo('Max profondità raggiunta', v.profondita_raggiunta, { unita: 'm', grow: 1.2 }))}
         ${riga(campo("Tempo Max d'immersione", v.tempo_max_immersione, { grow: 0.9 }), campo('Min profondità raggiunta', v.profondita_min_raggiunta, { unita: 'm', grow: 1.1 }))}
-        <div>${scelte(ASSETTO, v.assetto)}</div>
+        ${rigaScelte('', scelte(ASSETTO, v.assetto))}
       </div>
 
       <div class="blocco titolo">Attrezzatura utilizzata</div>
       <div class="blocco">
         ${riga(campo('Giacca muta mm', v.muta_giacca_mm), campo('Pantaloni muta mm', v.muta_pantaloni_mm, { grow: 1.1 }), campo('Bermuda mm', v.muta_bermuda_mm))}
         ${riga(campo('Guanti mm', v.guanti_mm), campo('Calzari mm', v.calzari_mm), campo('Zavorra kg', v.zavorra_kg), campo('Pinne', v.pinne, { grow: 1.5 }))}
-        <div>${flag('Computer/Orologio', v.usa_computer_orologio)} ${flag('Coltello/Tagliasagole', v.usa_coltello_tagliasagole)}</div>
+        ${rigaScelte('', flag('Computer/Orologio', v.usa_computer_orologio) + flag('Coltello/Tagliasagole', v.usa_coltello_tagliasagole))}
       </div>
 
       <div class="blocco titolo">Note / Sensazioni</div>
@@ -149,16 +156,18 @@ const STILE = `
     background: #f4f4f4;
     border-top: 0.7pt solid #12181f;
   }
-  .blocco.note { flex: 1; min-height: 20mm; white-space: pre-wrap; }
+  .blocco.note { flex: 1; min-height: 17mm; white-space: pre-wrap; }
   .blocco.piede { border-bottom: none; margin-top: auto; }
   .scelta { display: inline-block; margin-right: 2mm; white-space: nowrap; }
   strong { font-weight: 700; }
-  .blocco .riga-campi { display: flex; align-items: stretch; gap: 3mm; margin: 0.6mm 0; height: 4.9mm; }
+  .blocco .riga-campi { display: flex; align-items: stretch; gap: 3mm; margin: 0.5mm 0; height: 4.6mm; }
+  .blocco .riga-scelte { justify-content: space-between; align-items: flex-end; gap: 1.5mm; }
+  .riga-scelte .scelta { margin-right: 0; }
   .riga-uscita { align-items: stretch; height: auto; }
-  .campo { display: flex; align-items: flex-end; height: 4.9mm; min-width: 0; gap: 1.2mm; line-height: 1.1; }
+  .campo { display: flex; align-items: flex-end; height: 4.6mm; min-width: 0; gap: 1.2mm; line-height: 1.1; }
   .campo .etichetta { white-space: nowrap; }
   .campo strong { padding-bottom: 0.2mm; }
-  .campo .linea { flex: 1; min-width: 6mm; height: 3.7mm; border-bottom: 0.7pt solid #12181f; }
+  .campo .linea { flex: 1; min-width: 6mm; height: 3.5mm; border-bottom: 0.7pt solid #12181f; }
   .campo .unita { white-space: nowrap; }
 `
 
