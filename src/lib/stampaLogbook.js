@@ -77,7 +77,7 @@ function scheda(v, cliente, formattaData) {
         <div>CIELO: ${scelte(CIELO, v.condizioni_cielo)}</div>
         <div>SUPERFICIE: ${scelte(SUPERFICIE, v.condizioni_superficie)}</div>
         <div>VISIBILITÀ: ${scelte(VISIBILITA, v.visibilita)}</div>
-        ${riga('<span class="etichetta">TEMPERATURA:</span>', campo('Acqua', v.temperatura_acqua, { unita: '°C' }), campo('Aria', v.temperatura_aria, { unita: '°C' }))}
+        ${riga('<span class="campo" style="flex: 0 0 auto"><span class="etichetta">TEMPERATURA:</span></span>', campo('Acqua', v.temperatura_acqua, { unita: '°C' }), campo('Aria', v.temperatura_aria, { unita: '°C' }))}
       </div>
 
       <div class="blocco titolo">Attività svolta</div>
@@ -137,7 +137,7 @@ const STILE = `
   .intestazione .socio { font-size: 5.6pt; text-align: right; color: #333; line-height: 1.15; white-space: nowrap; }
 
   .riga, .blocco {
-    padding: 1.4mm 2.5mm;
+    padding: 0.9mm 2.5mm;
     border-bottom: 0.7pt solid #12181f;
     text-align: left;
   }
@@ -149,16 +149,17 @@ const STILE = `
     background: #f4f4f4;
     border-top: 0.7pt solid #12181f;
   }
-  .blocco.note { flex: 1; white-space: pre-wrap; }
+  .blocco.note { flex: 1; min-height: 20mm; white-space: pre-wrap; }
   .blocco.piede { border-bottom: none; margin-top: auto; }
   .scelta { display: inline-block; margin-right: 2mm; white-space: nowrap; }
   strong { font-weight: 700; }
-  .riga-campi { display: flex; align-items: flex-end; gap: 3mm; margin: 1.3mm 0; min-height: 6mm; }
-  .campo { display: flex; align-items: flex-end; gap: 1.2mm; min-width: 0; }
+  .blocco .riga-campi { display: flex; align-items: stretch; gap: 3mm; margin: 0.6mm 0; height: 4.9mm; }
+  .riga-uscita { align-items: stretch; height: auto; }
+  .campo { display: flex; align-items: flex-end; height: 4.9mm; min-width: 0; gap: 1.2mm; line-height: 1.1; }
   .campo .etichetta { white-space: nowrap; }
-  .campo .linea { flex: 1; min-width: 6mm; height: 4.6mm; border-bottom: 0.7pt solid #12181f; }
+  .campo strong { padding-bottom: 0.2mm; }
+  .campo .linea { flex: 1; min-width: 6mm; height: 3.7mm; border-bottom: 0.7pt solid #12181f; }
   .campo .unita { white-space: nowrap; }
-  .riga-uscita .campo { align-items: baseline; }
 `
 
 function attendiImmagini(container) {
@@ -225,6 +226,19 @@ export async function generaPdfLogbook(cliente, voci, formattaData, formato = 'A
         )
         larghezzaSchedaMm *= scalaFoglio
         altezzaSchedaMm *= scalaFoglio
+      }
+
+      if (formato !== 'A5') {
+        // Su A6 la scheda ha dimensione nativa; se per qualche motivo è più
+        // grande del foglio (testi lunghi), la riduciamo invece di tagliarla.
+        const MARGINE_A6_MM = 3
+        const riduzione = Math.min(
+          1,
+          (larghezzaPagina - 2 * MARGINE_A6_MM) / larghezzaSchedaMm,
+          (altezzaPagina - 2 * MARGINE_A6_MM) / altezzaSchedaMm
+        )
+        larghezzaSchedaMm *= riduzione
+        altezzaSchedaMm *= riduzione
       }
 
       const x = (larghezzaPagina - larghezzaSchedaMm) / 2
