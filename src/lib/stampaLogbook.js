@@ -25,8 +25,20 @@ function scelte(mappa, valoreSelezionato) {
     .join(' ')
 }
 
-function numeroOTrattino(v, unita = '') {
-  return v || v === 0 ? `${v}${unita}` : '___'
+// Campo compilabile: se il dato c'è, lo mostra in grassetto senza righe;
+// se manca, lascia una linea "bassa" su cui scrivere a penna dopo la stampa.
+// `grow` regola la larghezza relativa del campo nella riga (i campi di una
+// riga si dividono lo spazio libero), `unita` è il suffisso (m, °C, ...).
+function campo(etichetta, valore, { unita = '', grow = 1 } = {}) {
+  const presente = valore || valore === 0
+  const corpo = presente
+    ? `<strong>${valore}${unita}</strong>`
+    : `<span class="linea"></span>${unita ? `<span class="unita">${unita}</span>` : ''}`
+  return `<span class="campo" style="flex: ${grow} 1 0">${etichetta ? `<span class="etichetta">${etichetta}</span>` : ''}${corpo}</span>`
+}
+
+function riga(...campi) {
+  return `<div class="riga-campi">${campi.join('')}</div>`
 }
 
 function flag(etichetta, valore) {
@@ -44,20 +56,20 @@ function scheda(v, cliente, formattaData) {
         <img src="/logo-scheda.png" alt="" class="logo" />
         <div class="titoli">
           <h1>Scheda di registrazione immersioni:</h1>
-          <h2>Apnea in mare</h2>
+          <h2>Apnea in acque libere</h2>
         </div>
         <div class="socio">${cliente.nome}<br />${cliente.cognome}</div>
       </div>
 
       <div class="riga riga-uscita">
-        <span>N°Uscita <strong>${numeroOTrattino(v.numero_uscita)}</strong></span>
-        <span>data <strong>${formattaData(v.data)}</strong></span>
-        <span>${scelte({ lago: 'Lago', mare: 'Mare' }, v.specchio_acqua)}</span>
+        ${campo('N°Uscita', v.numero_uscita, { grow: 0.8 })}
+        ${campo('data', formattaData(v.data), { grow: 1.3 })}
+        <span class="campo" style="flex: 1.6 1 0">${scelte({ lago: 'Lago', mare: 'Mare' }, v.specchio_acqua)}</span>
       </div>
 
       <div class="blocco">
-        <div>Località <strong>${luogo || '—'}</strong></div>
-        <div>Coordinate Lat. <strong>${v.coordinate_lat || '—'}</strong> Long. <strong>${v.coordinate_long || '—'}</strong></div>
+        ${riga(campo('Località', luogo))}
+        ${riga(campo('Coordinate Lat.', v.coordinate_lat), campo('Long.', v.coordinate_long))}
       </div>
 
       <div class="blocco titolo">Condizioni Ambientali</div>
@@ -65,20 +77,20 @@ function scheda(v, cliente, formattaData) {
         <div>CIELO: ${scelte(CIELO, v.condizioni_cielo)}</div>
         <div>SUPERFICIE: ${scelte(SUPERFICIE, v.condizioni_superficie)}</div>
         <div>VISIBILITÀ: ${scelte(VISIBILITA, v.visibilita)}</div>
-        <div>TEMPERATURA: Acqua <strong>${numeroOTrattino(v.temperatura_acqua, '°C')}</strong> Aria <strong>${numeroOTrattino(v.temperatura_aria, '°C')}</strong></div>
+        ${riga('<span class="etichetta">TEMPERATURA:</span>', campo('Acqua', v.temperatura_acqua, { unita: '°C' }), campo('Aria', v.temperatura_aria, { unita: '°C' }))}
       </div>
 
       <div class="blocco titolo">Attività svolta</div>
       <div class="blocco">
-        <div>N. Tuffi Svolti <strong>${numeroOTrattino(v.numero_tuffi)}</strong> Max profondità raggiunta <strong>${numeroOTrattino(v.profondita_raggiunta, 'm')}</strong></div>
-        <div>Tempo Max d'immersione <strong>${v.tempo_max_immersione || '___'}</strong> Min profondità raggiunta <strong>${numeroOTrattino(v.profondita_min_raggiunta, 'm')}</strong></div>
+        ${riga(campo('N. Tuffi Svolti', v.numero_tuffi, { grow: 0.8 }), campo('Max profondità raggiunta', v.profondita_raggiunta, { unita: 'm', grow: 1.2 }))}
+        ${riga(campo("Tempo Max d'immersione", v.tempo_max_immersione, { grow: 0.9 }), campo('Min profondità raggiunta', v.profondita_min_raggiunta, { unita: 'm', grow: 1.1 }))}
         <div>${scelte(ASSETTO, v.assetto)}</div>
       </div>
 
       <div class="blocco titolo">Attrezzatura utilizzata</div>
       <div class="blocco">
-        <div>Giacca muta mm <strong>${numeroOTrattino(v.muta_giacca_mm)}</strong> Pantaloni muta mm <strong>${numeroOTrattino(v.muta_pantaloni_mm)}</strong> Bermuda mm <strong>${numeroOTrattino(v.muta_bermuda_mm)}</strong></div>
-        <div>Guanti mm <strong>${numeroOTrattino(v.guanti_mm)}</strong> Calzari mm <strong>${numeroOTrattino(v.calzari_mm)}</strong> Zavorra kg <strong>${numeroOTrattino(v.zavorra_kg)}</strong> Pinne <strong>${v.pinne || '—'}</strong></div>
+        ${riga(campo('Giacca muta mm', v.muta_giacca_mm), campo('Pantaloni muta mm', v.muta_pantaloni_mm, { grow: 1.1 }), campo('Bermuda mm', v.muta_bermuda_mm))}
+        ${riga(campo('Guanti mm', v.guanti_mm), campo('Calzari mm', v.calzari_mm), campo('Zavorra kg', v.zavorra_kg), campo('Pinne', v.pinne, { grow: 1.5 }))}
         <div>${flag('Computer/Orologio', v.usa_computer_orologio)} ${flag('Coltello/Tagliasagole', v.usa_coltello_tagliasagole)}</div>
       </div>
 
@@ -86,8 +98,8 @@ function scheda(v, cliente, formattaData) {
       <div class="blocco note">${v.note || ''}</div>
 
       <div class="blocco piede">
-        <div>Compagno/Guida/Istruttore <strong>${v.compagno_immersione || istruttoreDelClub || '—'}</strong></div>
-        <div>N. Brevetto <strong>${numeroBrevetto || '—'}</strong> Conferma istruttore <strong>${v.confermato_da_istruttore ? 'Sì' : 'No'}</strong></div>
+        ${riga(campo('Compagno/Guida/Istruttore', v.compagno_immersione || istruttoreDelClub))}
+        ${riga(campo('N. Brevetto', numeroBrevetto, { grow: 1.3 }), campo('Conferma istruttore', v.confermato_da_istruttore ? 'Sì' : 'No'))}
       </div>
     </section>`
 }
@@ -141,6 +153,12 @@ const STILE = `
   .blocco.piede { border-bottom: none; margin-top: auto; }
   .scelta { display: inline-block; margin-right: 2mm; white-space: nowrap; }
   strong { font-weight: 700; }
+  .riga-campi { display: flex; align-items: flex-end; gap: 3mm; margin: 1.3mm 0; min-height: 6mm; }
+  .campo { display: flex; align-items: flex-end; gap: 1.2mm; min-width: 0; }
+  .campo .etichetta { white-space: nowrap; }
+  .campo .linea { flex: 1; min-width: 6mm; height: 4.6mm; border-bottom: 0.7pt solid #12181f; }
+  .campo .unita { white-space: nowrap; }
+  .riga-uscita .campo { align-items: baseline; }
 `
 
 function attendiImmagini(container) {
