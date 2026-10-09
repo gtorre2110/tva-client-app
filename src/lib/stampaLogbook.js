@@ -156,14 +156,14 @@ const STILE = `
     background: #f4f4f4;
     border-top: 0.7pt solid #12181f;
   }
-  .blocco.note { flex: 1; min-height: 17mm; white-space: pre-wrap; }
+  .blocco.note { flex: 1; min-height: 22mm; white-space: pre-wrap; }
   .blocco.piede { border-bottom: none; margin-top: auto; }
   .scelta { display: inline-block; margin-right: 2mm; white-space: nowrap; }
   strong { font-weight: 700; }
   .blocco .riga-campi { display: flex; align-items: stretch; gap: 3mm; margin: 0.5mm 0; height: 4.6mm; }
   .blocco .riga-scelte { justify-content: space-between; align-items: flex-end; gap: 1.5mm; }
   .riga-scelte .scelta { margin-right: 0; }
-  .riga-uscita { align-items: stretch; height: auto; }
+  .riga-uscita { align-items: stretch; height: auto; border-bottom: none; padding-bottom: 0; }
   .campo { display: flex; align-items: flex-end; height: 4.6mm; min-width: 0; gap: 1.2mm; line-height: 1.1; }
   .campo .etichetta { white-space: nowrap; }
   .campo strong { padding-bottom: 0.2mm; }
