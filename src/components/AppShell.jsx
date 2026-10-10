@@ -1,21 +1,40 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { supabase } from '../supabaseClient'
 import logo from '../assets/logo.png'
 import BetaBanner from './BetaBanner'
 import './AppShell.css'
 
-const NAV_ITEMS = [
-  { to: '/profilo', label: 'Il mio profilo' },
+// Voci principali, ordinate per frequenza d'uso.
+const NAV_PRINCIPALI = [
   { to: '/attivita', label: 'Attività' },
   { to: '/prenotazioni', label: 'Prenotazioni' },
-  { to: '/brevetti', label: 'Brevetti' },
   { to: '/logbook', label: 'Logbook' },
+  { to: '/brevetti', label: 'Brevetti' },
+  { to: '/profilo', label: 'Il mio profilo' },
+]
+
+const NAV_SECONDARIE = [
   { to: '/info', label: 'Info' },
   { to: '/aiuto', label: 'Aiuto' },
 ]
 
 export default function AppShell({ cliente }) {
   const [menuAperto, setMenuAperto] = useState(false)
+  const [confermaEsci, setConfermaEsci] = useState(false)
+
+  function renderVoci(voci) {
+    return voci.map((item) => (
+      <NavLink
+        key={item.to}
+        to={item.to}
+        onClick={() => setMenuAperto(false)}
+        className={({ isActive }) => 'app-sheet-link' + (isActive ? ' active' : '')}
+      >
+        {item.label}
+      </NavLink>
+    ))
+  }
 
   return (
     <div className="app-shell">
@@ -47,17 +66,38 @@ export default function AppShell({ cliente }) {
           <div className="app-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="app-sheet-handle" />
             <nav className="app-sheet-nav">
-              {NAV_ITEMS.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setMenuAperto(false)}
-                  className={({ isActive }) => 'app-sheet-link' + (isActive ? ' active' : '')}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+              {renderVoci(NAV_PRINCIPALI)}
+              <div className="app-sheet-sep" />
+              {renderVoci(NAV_SECONDARIE)}
+              <div className="app-sheet-sep" />
+              <button
+                type="button"
+                className="app-sheet-link app-sheet-esci"
+                onClick={() => {
+                  setMenuAperto(false)
+                  setConfermaEsci(true)
+                }}
+              >
+                Esci
+              </button>
             </nav>
+          </div>
+        </div>
+      )}
+
+      {confermaEsci && (
+        <div className="app-conferma-overlay" onClick={() => setConfermaEsci(false)}>
+          <div className="app-conferma" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <h2>Uscire dall'app?</h2>
+            <p>Per rientrare dovrai fare di nuovo il login.</p>
+            <div className="app-conferma-azioni">
+              <button type="button" className="btn-secondary" onClick={() => setConfermaEsci(false)}>
+                Annulla
+              </button>
+              <button type="button" className="btn-primary" onClick={() => supabase.auth.signOut()}>
+                Esci
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -164,10 +164,6 @@ export default function Profilo({ cliente }) {
       <DatiPersonali clienteId={cliente.id} />
 
       <Categorie cliente={cliente} />
-
-      <button className="btn-secondary profilo-logout" onClick={() => supabase.auth.signOut()}>
-        Esci
-      </button>
     </div>
   )
 }
