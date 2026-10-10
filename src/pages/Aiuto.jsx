@@ -38,7 +38,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Il menu</h2>
-        <p>In basso a destra trovi un pulsante rotondo, sempre raggiungibile con il pollice: toccalo per aprire il menu con tutte le sezioni.</p>
+        <p>In basso a destra trovi un pulsante rotondo, sempre raggiungibile con il pollice: toccalo per aprire il menu con tutte le sezioni. Le più usate (Attività, Prenotazioni, Logbook) sono in alto; in fondo trovi Esci, che chiede una conferma prima di uscire.</p>
       </section>
 
       <section>
