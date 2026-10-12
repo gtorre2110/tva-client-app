@@ -179,7 +179,7 @@ export default function Attivita({ cliente }) {
 
   return (
     <div>
-      <h1 className="page-title">Attività</h1>
+      <h1 className="page-title">Prenota un'attività</h1>
 
       {cliente.prenotazioni_bloccate && (
         <p className="avviso avviso-alert">

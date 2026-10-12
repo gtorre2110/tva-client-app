@@ -7,8 +7,8 @@ import './AppShell.css'
 
 // Voci principali, ordinate per frequenza d'uso.
 const NAV_PRINCIPALI = [
-  { to: '/attivita', label: 'Attività' },
-  { to: '/prenotazioni', label: 'Prenotazioni' },
+  { to: '/attivita', label: 'Prenota un\'attività' },
+  { to: '/prenotazioni', label: 'Le mie prenotazioni' },
   { to: '/logbook', label: 'Logbook' },
   { to: '/brevetti', label: 'Brevetti' },
   { to: '/profilo', label: 'Il mio profilo' },

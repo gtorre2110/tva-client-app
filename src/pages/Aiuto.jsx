@@ -12,7 +12,7 @@ export default function Aiuto() {
       </section>
 
       <section>
-        <h2>Attività</h2>
+        <h2>Prenota un'attività</h2>
         <p>Le prossime attività disponibili, filtrabili per macrocategoria con le schede in alto. Se un'attività è al completo puoi metterti in lista d'attesa: se si libera un posto, la tua prenotazione si conferma da sola e ricevi un'email (se hai attivato il consenso). Se le prenotazioni sono chiuse ma l'attività non è ancora iniziata, puoi comunque registrare una richiesta "tardiva": se ci sono posti risulta prenotata, altrimenti vai in fondo alla lista d'attesa, e in entrambi i casi devi contattare lo staff per la conferma (lo staff decide chi è presente al check-in).</p>
       </section>
 
@@ -38,7 +38,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Il menu</h2>
-        <p>In basso a destra trovi un pulsante rotondo, sempre raggiungibile con il pollice: toccalo per aprire il menu con tutte le sezioni. Le più usate (Attività, Prenotazioni, Logbook) sono in alto; in fondo trovi Esci, che chiede una conferma prima di uscire.</p>
+        <p>In basso a destra trovi un pulsante rotondo, sempre raggiungibile con il pollice: toccalo per aprire il menu con tutte le sezioni. Le più usate (Prenota un'attività, Le mie prenotazioni, Logbook) sono in alto; in fondo trovi Esci, che chiede una conferma prima di uscire.</p>
       </section>
 
       <section>
