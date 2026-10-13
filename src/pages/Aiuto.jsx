@@ -7,8 +7,13 @@ export default function Aiuto() {
       <p className="hint">Guida rapida alle funzioni dell'app.</p>
 
       <section>
+        <h2>Registrazione e accesso</h2>
+        <p>Per registrarti serve il codice invito del club. Dopo la registrazione ricevi un'email di conferma: apri il link che contiene prima di accedere la prima volta. L'email può arrivare con qualche minuto di ritardo; se non la trovi, controlla anche nella posta indesiderata (spam). Se hai dimenticato la password, nella schermata di accesso tocca "Password dimenticata?": ricevi un'email con il link per sceglierne una nuova.</p>
+      </section>
+
+      <section>
         <h2>Il tuo profilo</h2>
-        <p>È la schermata che si apre per prima. Mostra i tuoi dati, saldo ingressi, scadenza del certificato medico, e ti permette di caricare una foto e attivare/disattivare le email. Più sotto trovi due sezioni a comparsa: "Categorie" (a quali attività sei interessato: lo staff dovrà confermarle; le categorie sono raggruppate per macrocategoria, tocca il titolo di un gruppo per richiederle o ritirarle tutte insieme) e "Dati personali" (indirizzo, codice fiscale e altri dati facoltativi).</p>
+        <p>È la schermata che si apre per prima. Mostra i tuoi dati, saldo ingressi, scadenza del certificato medico e, se presenti, le scadenze dell'assicurazione DAN e della tessera FIPSAS (con un avviso quando stanno per scadere). Ti permette di caricare una foto e attivare/disattivare le email. Più sotto trovi due sezioni a comparsa: "Categorie" (a quali attività sei interessato: lo staff dovrà confermarle; le categorie sono raggruppate per macrocategoria, tocca il titolo di un gruppo per richiederle o ritirarle tutte insieme) e "Dati personali" (indirizzo, codice fiscale e altri dati facoltativi).</p>
       </section>
 
       <section>
@@ -18,7 +23,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Le mie prenotazioni</h2>
-        <p>Le tue prenotazioni, con un interruttore per mostrare anche quelle annullate e le schede per filtrarle per macrocategoria. Puoi annullare (o ritirarti dalla lista d'attesa) finché l'attività non è passata e non hai già fatto il check-in.</p>
+        <p>In alto il saldo ingressi e la scadenza del certificato; sotto, due schede: "Prossime" e "Passate" (dove trovi anche quelle annullate). Ogni prenotazione mostra il suo stato: confermata, tardiva da confermare, in lista d'attesa con la tua posizione, presenza registrata o annullata. Puoi annullare (o ritirarti dalla lista d'attesa) finché l'attività non è passata e non hai già fatto il check-in.</p>
       </section>
 
       <section>
@@ -42,6 +47,16 @@ export default function Aiuto() {
       </section>
 
       <section>
+        <h2>Installare l'app sul telefono</h2>
+        <p>L'app non si scarica da uno store: si aggiunge alla schermata Home come un'icona e si apre a tutto schermo.</p>
+        <ul>
+          <li>iPhone/iPad: apri l'indirizzo dell'app in Safari, tocca il pulsante Condividi (il quadrato con la freccia in su) e scegli "Aggiungi alla schermata Home".</li>
+          <li>Android: apri l'indirizzo in Chrome, tocca i tre puntini in alto a destra e scegli "Installa app" o "Aggiungi a schermata Home".</li>
+          <li>Computer: in Chrome o Edge usa l'icona di installazione nella barra degli indirizzi.</li>
+        </ul>
+      </section>
+
+      <section>
         <h2>Segnalare un'anomalia</h2>
         <p>Se qualcosa non funziona, scrivi a apneatreviso@gmail.com con oggetto "anomalia app client", indicando cosa stavi facendo, dispositivo e browser e, se puoi, uno screenshot.</p>
       </section>
@@ -53,6 +68,8 @@ export default function Aiuto() {
           <li>Tutto quello che scrivi viene salvato automaticamente in MAIUSCOLO, per uniformità.</li>
         </ul>
       </section>
+
+      <p className="hint">App Cliente Treviso Apnea · Versione 2.0 (ottobre 2026)</p>
     </div>
   )
 }
