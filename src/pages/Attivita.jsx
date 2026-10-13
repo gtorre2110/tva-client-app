@@ -4,7 +4,7 @@ import { formattaOra, certificatoScaduto, scomponiData } from '../lib/util'
 import './Attivita.css'
 import './Prenotazioni.css'
 
-export default function Attivita({ cliente }) {
+export default function Attivita({ cliente, onAggiornaCliente }) {
   const certificatoNonValido = certificatoScaduto(cliente.scadenza_certificato_medico)
   const [occorrenze, setOccorrenze] = useState([])
   const [prenotazioniPerAttivita, setPrenotazioniPerAttivita] = useState(new Map())
@@ -142,11 +142,17 @@ export default function Attivita({ cliente }) {
     setInCorso(null)
 
     if (insertError) {
-      const messaggio = insertError.code === '23505'
-        ? 'Hai già una prenotazione (o sei già in lista d\'attesa) per questa attività.'
-        : insertError.message
+      let messaggio = insertError.message
+      if (insertError.code === '23505') {
+        messaggio = 'Hai già una prenotazione (o sei già in lista d\'attesa) per questa attività.'
+      } else if (insertError.code === '42501') {
+        // Rifiutata dalle regole del database: certificato scaduto, prenotazioni
+        // bloccate dallo staff o prenotazioni chiuse nel frattempo.
+        messaggio = 'Prenotazione non accettata. Controlla nel profilo la scadenza del certificato medico; se è in regola, contatta lo staff.'
+        if (onAggiornaCliente) onAggiornaCliente()
+      }
       setEsito({ tipo: 'errore', id: occorrenza.id, messaggio })
-      if (insertError.code === '23505') carica()
+      if (insertError.code === '23505' || insertError.code === '42501') carica()
     } else {
       setEsito({ tipo: tardiva ? (stato === 'in_coda' ? 'tardiva-coda' : 'tardiva') : stato === 'in_coda' ? 'coda' : 'ok', id: occorrenza.id })
       carica()

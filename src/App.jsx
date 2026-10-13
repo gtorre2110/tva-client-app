@@ -46,6 +46,17 @@ export default function App() {
     setCliente(data)
   }
 
+  // Rilegge i dati del cliente senza ricaricare l'intera app (es. dopo che lo
+  // staff ha cambiato certificato o blocco mentre l'app era aperta).
+  async function aggiornaCliente() {
+    const { data } = await supabase
+      .from('clienti')
+      .select('*')
+      .eq('auth_user_id', session.user.id)
+      .maybeSingle()
+    if (data) setCliente(data)
+  }
+
   if (session === undefined) return null
 
   if (recupero) {
@@ -77,7 +88,7 @@ export default function App() {
         <Route element={<AppShell cliente={cliente} />}>
           <Route path="/" element={<Navigate to="/profilo" replace />} />
           <Route path="/profilo" element={<Profilo cliente={cliente} />} />
-          <Route path="/attivita" element={<Attivita cliente={cliente} />} />
+          <Route path="/attivita" element={<Attivita cliente={cliente} onAggiornaCliente={aggiornaCliente} />} />
           <Route path="/prenotazioni" element={<Prenotazioni cliente={cliente} />} />
           <Route path="/brevetti" element={<Brevetti cliente={cliente} />} />
           <Route path="/logbook" element={<Logbook cliente={cliente} />} />
