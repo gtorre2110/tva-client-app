@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import './Categorie.css'
+import './DatiPersonali.css'
 
 export default function Categorie({ cliente }) {
+  const [aperto, setAperto] = useState(false)
   const [tutte, setTutte] = useState([])
   const [collegate, setCollegate] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    carica()
-  }, [])
+    if (aperto) carica()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aperto])
 
   async function carica() {
     setLoading(true)
@@ -78,54 +81,61 @@ export default function Categorie({ cliente }) {
   const macrocategorie = tutte.filter((c) => !c.categoria_padre_id)
 
   return (
-    <div>
-      <h1 className="page-title">Categorie</h1>
-      <p className="hint categorie-intro">
-        Indica a quali categorie di attività sei interessato. Lo staff dovrà confermarle prima
-        che tu possa vedere e prenotare le attività riservate a quella categoria. Tocca il
-        titolo di un gruppo per richiederle (o ritirarle) tutte insieme.
-      </p>
+    <div className="dati-personali-box">
+      <button type="button" className="dati-personali-toggle" onClick={() => setAperto((v) => !v)}>
+        Categorie {aperto ? '▲' : '▼'}
+      </button>
 
-      {error && <p className="errore-form">{error}</p>}
-      {loading && <p className="hint">Caricamento…</p>}
-      {!loading && tutte.length === 0 && <p className="hint">Nessuna categoria disponibile.</p>}
+      {aperto && (
+        <div className="categorie-box-contenuto">
+          <p className="hint categorie-intro">
+            Indica a quali categorie di attività sei interessato. Lo staff dovrà confermarle
+            prima che tu possa vedere e prenotare le attività riservate a quella categoria.
+            Tocca il titolo di un gruppo per richiederle (o ritirarle) tutte insieme.
+          </p>
 
-      <div className="categorie-gruppi">
-        {macrocategorie.map((padre) => {
-          const figlie = tutte.filter((c) => c.categoria_padre_id === padre.id)
-          if (figlie.length === 0) {
-            // Categoria senza sottocategorie: si comporta come una categoria singola, selezionabile
-            const stato = statoDi(padre.id)
-            return (
-              <CategoriaChip
-                key={padre.id}
-                nome={padre.nome}
-                stato={stato}
-                onRichiedi={() => richiedi(padre.id)}
-                onRitira={() => ritira(padre.id)}
-              />
-            )
-          }
-          return (
-            <div className="categorie-gruppo" key={padre.id}>
-              <button type="button" className="categorie-gruppo-titolo" onClick={() => toggleGruppo(figlie)}>
-                {padre.nome}
-              </button>
-              <div className="categorie-chips">
-                {figlie.map((f) => (
+          {error && <p className="errore-form">{error}</p>}
+          {loading && <p className="hint">Caricamento…</p>}
+          {!loading && tutte.length === 0 && <p className="hint">Nessuna categoria disponibile.</p>}
+
+          <div className="categorie-gruppi">
+            {macrocategorie.map((padre) => {
+              const figlie = tutte.filter((c) => c.categoria_padre_id === padre.id)
+              if (figlie.length === 0) {
+                // Categoria senza sottocategorie: si comporta come una categoria singola, selezionabile
+                const stato = statoDi(padre.id)
+                return (
                   <CategoriaChip
-                    key={f.id}
-                    nome={f.nome}
-                    stato={statoDi(f.id)}
-                    onRichiedi={() => richiedi(f.id)}
-                    onRitira={() => ritira(f.id)}
+                    key={padre.id}
+                    nome={padre.nome}
+                    stato={stato}
+                    onRichiedi={() => richiedi(padre.id)}
+                    onRitira={() => ritira(padre.id)}
                   />
-                ))}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+                )
+              }
+              return (
+                <div className="categorie-gruppo" key={padre.id}>
+                  <button type="button" className="categorie-gruppo-titolo" onClick={() => toggleGruppo(figlie)}>
+                    {padre.nome}
+                  </button>
+                  <div className="categorie-chips">
+                    {figlie.map((f) => (
+                      <CategoriaChip
+                        key={f.id}
+                        nome={f.nome}
+                        stato={statoDi(f.id)}
+                        onRichiedi={() => richiedi(f.id)}
+                        onRitira={() => ritira(f.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

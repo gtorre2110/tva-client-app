@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import logo from '../assets/logo.png'
+import BetaBanner from '../components/BetaBanner'
 import CampoPassword from '../components/CampoPassword'
 import './Auth.css'
 
@@ -36,6 +37,7 @@ export default function NuovaPassword({ onCompletato }) {
     return (
       <div className="auth-screen">
         <div className="auth-card">
+          <BetaBanner />
           <img src={logo} alt="Logo" className="auth-logo" />
           <h1>Fatto!</h1>
           <p className="auth-info">La tua password è stata aggiornata.</p>
@@ -50,6 +52,7 @@ export default function NuovaPassword({ onCompletato }) {
   return (
     <div className="auth-screen">
       <div className="auth-card">
+        <BetaBanner />
         <img src={logo} alt="Logo" className="auth-logo" />
         <span className="auth-kicker">Recupero accesso</span>
         <h1>Nuova password</h1>

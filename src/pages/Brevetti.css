@@ -20,6 +20,49 @@
   display: block;
 }
 
+.brevetto-pdf-link {
+  display: inline-block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.badge-riferimento {
+  display: inline-block;
+  margin-top: 0.4rem;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+.brevetto-riferimento-btn {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.brevetto-immagine-azioni {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.brevetto-immagine-azioni .brevetto-carica-immagine {
+  margin-top: 0;
+}
+
+.brevetto-elimina-immagine {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+}
+
 .brevetto-carica-immagine {
   display: inline-block;
   margin-top: 0.5rem;

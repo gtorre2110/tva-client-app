@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useBozza } from '../lib/useBozza'
 import { supabase } from '../supabaseClient'
 import logo from '../assets/logo.png'
+import BetaBanner from '../components/BetaBanner'
 import './Auth.css'
 
 const VUOTO = { codice: '', nome: '', cognome: '', telefono: '' }
@@ -45,6 +46,7 @@ export default function CompletaProfilo({ onCompletato }) {
   return (
     <div className="auth-screen">
       <div className="auth-card">
+        <BetaBanner />
         <img src={logo} alt="Logo" className="auth-logo" />
         <span className="auth-kicker">Ultimo passo</span>
         <h1>Completa la registrazione</h1>

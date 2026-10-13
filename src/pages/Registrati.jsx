@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import logo from '../assets/logo.png'
+import BetaBanner from '../components/BetaBanner'
 import CampoPassword from '../components/CampoPassword'
 import './Auth.css'
 
@@ -17,7 +18,11 @@ export default function Registrati() {
     setError(null)
     setLoading(true)
 
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    })
 
     setLoading(false)
 
@@ -37,6 +42,7 @@ export default function Registrati() {
     return (
       <div className="auth-screen">
         <div className="auth-card">
+          <BetaBanner />
           <img src={logo} alt="Logo" className="auth-logo" />
           <h1>Controlla la tua email</h1>
           <p className="auth-info">
@@ -54,6 +60,7 @@ export default function Registrati() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
+        <BetaBanner />
         <img src={logo} alt="Logo" className="auth-logo" />
         <span className="auth-kicker">Gestione attività</span>
         <h1>Crea il tuo account</h1>

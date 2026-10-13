@@ -8,3 +8,18 @@
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
 }
+
+.campo-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+}
+
+.brevetto-card-piede {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
