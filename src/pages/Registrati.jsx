@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 import logo from '../assets/logo.png'
 import BetaBanner from '../components/BetaBanner'
 import CampoPassword from '../components/CampoPassword'
+import { messaggioErroreAuth, emailGiaRegistrata } from '../lib/erroriAuth'
 import './Auth.css'
 
 export default function Registrati() {
@@ -12,6 +13,7 @@ export default function Registrati() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [emailInviata, setEmailInviata] = useState(false)
+  const [giaRegistrata, setGiaRegistrata] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -27,7 +29,12 @@ export default function Registrati() {
     setLoading(false)
 
     if (signUpError) {
-      setError(signUpError.message)
+      setError(messaggioErroreAuth(signUpError))
+      return
+    }
+
+    if (emailGiaRegistrata(data)) {
+      setGiaRegistrata(true)
       return
     }
 
@@ -36,6 +43,28 @@ export default function Registrati() {
     if (!data.session) {
       setEmailInviata(true)
     }
+  }
+
+  if (giaRegistrata) {
+    return (
+      <div className="auth-screen">
+        <div className="auth-card">
+          <BetaBanner />
+          <img src={logo} alt="Logo" className="auth-logo" />
+          <h1>Email già registrata</h1>
+          <p className="auth-info">
+            Esiste già un account con <strong>{email}</strong>. Accedi con la tua password;
+            se non la ricordi, usa "Password dimenticata?".
+          </p>
+          <Link to="/login" className="btn-primary auth-submit">
+            Vai al login
+          </Link>
+          <p className="auth-switch">
+            <Link to="/password-dimenticata">Password dimenticata?</Link>
+          </p>
+        </div>
+      </div>
+    )
   }
 
   if (emailInviata) {
