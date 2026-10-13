@@ -4,6 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  padding-top: calc(1.5rem + env(safe-area-inset-top));
 }
 
 .auth-card {
