@@ -18,7 +18,7 @@ export default function Aiuto() {
 
       <section>
         <h2>Prenota un'attività</h2>
-        <p>Le prossime attività disponibili, filtrabili per macrocategoria con le schede in alto. Se un'attività è al completo puoi metterti in lista d'attesa: se si libera un posto, la tua prenotazione si conferma da sola e ricevi un'email (se hai attivato il consenso). Se le prenotazioni sono chiuse ma l'attività non è ancora iniziata, puoi comunque registrare una richiesta "tardiva": se ci sono posti risulta prenotata, altrimenti vai in fondo alla lista d'attesa, e in entrambi i casi devi contattare lo staff per la conferma (lo staff decide chi è presente al check-in).</p>
+        <p>Le prossime attività disponibili, filtrabili per macrocategoria con le schede in alto. Le attività di una categoria che hai richiesto ma che lo staff non ha ancora confermato compaiono con la scritta "Categoria in attesa": potrai prenotarle dopo la conferma. Se un'attività è al completo puoi metterti in lista d'attesa: se si libera un posto, la tua prenotazione si conferma da sola e ricevi un'email (se hai attivato il consenso). Se le prenotazioni sono chiuse ma l'attività non è ancora iniziata, puoi comunque registrare una richiesta "tardiva": se ci sono posti risulta prenotata, altrimenti vai in fondo alla lista d'attesa, e in entrambi i casi devi contattare lo staff per la conferma (lo staff decide chi è presente al check-in).</p>
       </section>
 
       <section>

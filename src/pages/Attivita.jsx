@@ -7,6 +7,8 @@ import './Prenotazioni.css'
 export default function Attivita({ cliente, onAggiornaCliente }) {
   const certificatoNonValido = certificatoScaduto(cliente.scadenza_certificato_medico)
   const [occorrenze, setOccorrenze] = useState([])
+  // Attività visibili solo grazie a categorie richieste ma non ancora confermate dallo staff
+  const [inAttesa, setInAttesa] = useState(new Set())
   const [prenotazioniPerAttivita, setPrenotazioniPerAttivita] = useState(new Map())
   const [posizioni, setPosizioni] = useState(new Map())
   const [loading, setLoading] = useState(true)
@@ -72,7 +74,7 @@ export default function Attivita({ cliente, onAggiornaCliente }) {
     }
 
     const [{ data: mieCategorie }, { data: categorieAttivita }, { data: categorie }] = await Promise.all([
-      supabase.from('clienti_categorie').select('categoria_id').eq('cliente_id', cliente.id),
+      supabase.from('clienti_categorie').select('categoria_id, confermata').eq('cliente_id', cliente.id),
       supabase
         .from('attivita_categorie')
         .select('attivita_id, categoria_id')
@@ -81,6 +83,7 @@ export default function Attivita({ cliente, onAggiornaCliente }) {
     ])
 
     const mieCategorieSet = new Set((mieCategorie || []).map((c) => c.categoria_id))
+    const confermateSet = new Set((mieCategorie || []).filter((c) => c.confermata).map((c) => c.categoria_id))
     const categoriePerAttivita = new Map()
     for (const riga of categorieAttivita || []) {
       if (!categoriePerAttivita.has(riga.attivita_id)) {
@@ -95,6 +98,14 @@ export default function Attivita({ cliente, onAggiornaCliente }) {
       if (!categorieAttivita || categorieAttivita.length === 0) return true
       return categorieAttivita.some((cid) => mieCategorieSet.has(cid))
     })
+
+    // Visibili ma non prenotabili: nessuna delle categorie dell'attività è ancora confermata
+    const nuoveInAttesa = new Set()
+    for (const o of visibili) {
+      const cats = categoriePerAttivita.get(o.id)
+      if (cats && cats.length > 0 && !cats.some((cid) => confermateSet.has(cid))) nuoveInAttesa.add(o.id)
+    }
+    setInAttesa(nuoveInAttesa)
 
     // Raggruppamento per macrocategoria (solo per organizzare le schede, non incide sulla visibilità)
     const categoriePerId = new Map((categorie || []).map((c) => [c.id, c]))
@@ -125,6 +136,7 @@ export default function Attivita({ cliente, onAggiornaCliente }) {
   }
 
   async function prenota(occorrenza, stato = 'confermata', tardiva = false) {
+    if (inAttesa.has(occorrenza.id)) return
     if (prenotazioniPerAttivita.has(occorrenza.id)) return
 
     setInCorso(occorrenza.id)
@@ -270,9 +282,11 @@ export default function Attivita({ cliente, onAggiornaCliente }) {
           const tot = o.posti_massimi ?? o.posti_totali ?? null
           const pct = tot ? Math.round(((tot - o.posti_disponibili) / tot) * 100) : null
 
+          const categoriaInAttesa = inAttesa.has(o.id) && !mia
           let tag = null
           let tagClass = ''
-          if (giaPrenotata) { tag = mia?.tardiva ? 'PRENOTATA · TARDIVA' : 'PRENOTATA'; tagClass = mia?.tardiva ? 'badge-warning' : 'badge-ok' }
+          if (categoriaInAttesa) { tag = 'CATEGORIA IN ATTESA'; tagClass = 'badge-neutro' }
+          else if (giaPrenotata) { tag = mia?.tardiva ? 'PRENOTATA · TARDIVA' : 'PRENOTATA'; tagClass = mia?.tardiva ? 'badge-warning' : 'badge-ok' }
           else if (giaInCoda) { tag = mia?.tardiva ? 'IN LISTA D\'ATTESA · TARDIVA' : 'IN LISTA D\'ATTESA'; tagClass = 'badge-warning' }
           else if (piena) { tag = 'COMPLETA'; tagClass = 'badge-neutro' }
 
@@ -308,14 +322,20 @@ export default function Attivita({ cliente, onAggiornaCliente }) {
                   </div>
                 )}
 
-                {tardiva && (
+                {categoriaInAttesa && (
+                  <p className="hint">
+                    Categoria in attesa di conferma: potrai prenotare quando lo staff avrà confermato la tua
+                    richiesta (Il mio profilo → Categorie).
+                  </p>
+                )}
+                {!categoriaInAttesa && tardiva && (
                   <p className="hint">
                     Le prenotazioni sono chiuse. Puoi registrare comunque la richiesta come prenotazione tardiva
                     {piena ? ' (l\'attività è al completo: andrai in fondo alla lista d\'attesa)' : ''}:
                     contatta lo staff per la conferma.
                   </p>
                 )}
-                {!tardiva && !o.prenotabile_ora && !mia && o.posti_disponibili > 0 && (
+                {!categoriaInAttesa && !tardiva && !o.prenotabile_ora && !mia && o.posti_disponibili > 0 && (
                   <p className="hint">Le prenotazioni non sono ancora aperte o sono già chiuse.</p>
                 )}
 
@@ -346,7 +366,7 @@ export default function Attivita({ cliente, onAggiornaCliente }) {
                 <div className="attivita-card-footer">
                   {tag && <span className={'badge ' + tagClass}>{tag}</span>}
 
-                  {puoAnnullare ? (
+                  {categoriaInAttesa ? null : puoAnnullare ? (
                     <button
                       className="btn-secondary attivita-card-btn"
                       disabled={inLoading}
